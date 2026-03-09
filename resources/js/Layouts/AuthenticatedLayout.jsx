@@ -283,7 +283,7 @@ export default function Authenticated({ auth, children }) {
                                 </button>
                             </div>
                         </div>
-                        <div className="head-tabs-main flex items-center gap-[15px] xl:gap-[0px] w-[33%] sm:w-[30%] md:w-[55%] lg:w-[60%] xl:w-[76%] 2xl:w-[81%] justify-end xl:justify-between flex-wrap 2xl:flex-nowrap md:pe-[20px] lg:pe-[30px] pe-[15px]">
+                        <div className="head-tabs-main flex items-center gap-[15px] xl:gap-[0px] w-[33%] sm:w-[30%] md:w-[55%] lg:w-[60%] xl:w-[76%] 2xl:w-[81%] justify-end flex-wrap 2xl:flex-nowrap md:pe-[20px] lg:pe-[30px] pe-[15px]">
                             <div className="flex gap-[15px] sm:gap-[20px] md:gap-[0px] sm:flex-nowrap flex-wrap items-center w-full lg:w-auto justify-end lg:justify-auto">
                                 <div className="relative" ref={menuRef}>
                                     <button
