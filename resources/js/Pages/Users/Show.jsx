@@ -6,7 +6,6 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import TextArea from '@/Components/TextArea';
 import { Transition } from '@headlessui/react';
-import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 export default function Show({ auth , roles }) {
     const { data, setData, post, errors, progress, recentlySuccessful } = useForm({
         name: null,

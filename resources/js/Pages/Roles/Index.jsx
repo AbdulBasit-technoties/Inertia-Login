@@ -2,7 +2,6 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
-import "primereact/resources/themes/bootstrap4-light-blue/theme.css";
 import { useRef, useState } from "react";
 import usePermissions from "@/Hooks/usePermissions";
 import InputError from "@/Components/InputError";

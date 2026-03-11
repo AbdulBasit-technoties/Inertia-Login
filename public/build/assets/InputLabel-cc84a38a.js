@@ -1,0 +1,1 @@
+import{j as n}from"./app-56df4aa2.js";function s({value:t,className:e="",children:r,...a}){return n.jsx("label",{...a,className:"block font-medium text-[15px] text-primary dark:text-secondary"+e,children:t||r})}export{s as I};

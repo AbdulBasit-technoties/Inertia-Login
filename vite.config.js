@@ -15,7 +15,6 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     react: ["react", "react-dom"],
-                    chart: ["chart.js", "react-chartjs-2"],
                     inertia: ["@inertiajs/react"],
                 },
             },
