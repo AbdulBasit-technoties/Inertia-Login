@@ -59,7 +59,7 @@ class RoleController extends Controller
                 ->whereYear('created_at', now()->year);
         }
 
-        $perPage = $request->get('pagination', 30);
+        $perPage = $request->get('pagination', 10);
 
         $roles = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
 

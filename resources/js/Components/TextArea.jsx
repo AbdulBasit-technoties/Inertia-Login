@@ -13,7 +13,7 @@ export default forwardRef(function TextareaInput({ type = 'text', className = ''
         <textarea
             {...props}
             className={
-                'border-custbord dark:border-darkbord text-primary focus:border-custgreen focus:ring-0 rounded shadow-sm mt-1 block w-full h-[120px] dark:bg-primary dark:focus:border-custgreen dark:text-secondary ' +
+                'text-primary rounded mt-1 block px-4 py-3 w-full h-[120px] dark:bg-primary dark:text-secondary border border-transparent focus:border-custgreen outline-none ' +
                 className
             }
             ref={input}

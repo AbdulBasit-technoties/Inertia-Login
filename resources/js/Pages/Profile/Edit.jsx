@@ -3,32 +3,47 @@ import DeleteUserForm from "./Partials/DeleteUserForm";
 import UpdatePasswordForm from "./Partials/UpdatePasswordForm";
 import UpdateProfileInformationForm from "./Partials/UpdateProfileInformationForm";
 import { Head, router, useForm } from "@inertiajs/react";
-import { Transition } from "@headlessui/react";
 import PrimaryButton from "@/Components/PrimaryButton";
 import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
-import TextInput from "@/Components/TextInput";
+import { useState, useRef } from "react";
+import { MdOutlineCameraAlt } from "react-icons/md";
 
 export default function Edit({
     auth,
     mustVerifyEmail,
     status,
+    profile,
+    countries,
 }) {
-    const { data, setData, post, errors, progress, recentlySuccessful } =
-        useForm({
-            id: auth.user.pid,
-            nic_f: "",
-            nic_b: "",
-        });
+    const { data, setData, post, errors, progress, processing } = useForm({
+        id: auth.user.pid,
+        nic_f: "",
+        nic_b: "",
+    });
     const submit = (e) => {
         e.preventDefault();
         post(route("profile.image", { id: auth.user.pid }));
     };
     const userRole = auth.user.roles.map((role) => role.name);
 
+    const [nicFrontPreview, setNicFrontPreview] = useState(
+        profile?.nic_f ?? null,
+    );
+
+    const [nicBackPreview, setNicBackPreview] = useState(
+        profile?.nic_b ?? null,
+    );
+
+    const nicFrontRef = useRef();
+    const nicBackRef = useRef();
+
+    const fileInputRef = useRef();
+
     return (
         <AuthenticatedLayout
             auth={auth}
+            title="Profile"
             header={
                 <h2 className="font-semibold text-xl text-gray-800 leading-tight">
                     Profile
@@ -38,89 +53,90 @@ export default function Edit({
             <Head title="Profile" />
 
             <div className="">
-                <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg dark:bg-primary">
-                    <UpdateProfileInformationForm
-                        mustVerifyEmail={mustVerifyEmail}
-                        status={status}
-                        auth={auth}
-                        className="max-w-full"
-                    />
+                <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
+                    <h2 className="text-custblack text-[22px] dark:text-secondary capitalize">
+                        Profile Information
+                    </h2>
+                    <p className="mt-1 text-sm text-custblack dark:text-secondary/90">
+                        Update your account's profile information and email
+                        address.
+                    </p>
                 </div>
-                <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg dark:bg-primary mt-5">
-                    <header>
-                        <h2 className="text-[18px] sm:text-[22px] font-medium text-gray-900 dark:text-white">
-                            Upload Your Profile Pictures here
-                        </h2>
-                    </header>
-                    <div className="mt-6 space-y-6">
-                        <div className="py-3 w-full">
-                            <InputLabel
-                                htmlFor="profile_image"
-                                value="Profile Image"
-                            />
-                            <TextInput
-                                id="profile_image"
-                                className="mt-1 block w-full"
-                                isFocused
-                                onChange={(e) => {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const formData = new FormData();
-                                        formData.append(
-                                            "profile_image",
-                                            file
-                                        );
-                                        router.post(
-                                            route("profileimage", {
-                                                id: auth.currentProfile,
-                                            }),
-                                            formData,
-                                            {
-                                                forceFormData: true,
-                                                onSuccess: () => {
-                                                    toast.dismiss(
-                                                        loadingToast
-                                                    );
-                                                    toast.success(
-                                                        "Profile photo updated successfully!"
-                                                    );
-                                                },
-                                                onError: (errors) => {
-                                                    toast.dismiss(
-                                                        loadingToast
-                                                    );
-                                                    toast.error(
-                                                        errors.profile_image ||
-                                                        "Error uploading photo"
-                                                    );
-                                                },
-                                            }
-                                        );
-                                    }
-                                }}
-                                type="file"
-                            />
-                        </div>
-                        <div className="w-[200px] h-[200px] object-contain dark:text-white">
-                            <img
-                                src={
-                                    auth.user.profile_image
-                                        ? auth.user.profile_image
-                                        : "/image/no-image.webp"
+
+                <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
+                    <div className="flex items-center gap-6 mb-[20px]">
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                    const formData = new FormData();
+                                    formData.append("profile_image", file);
+
+                                    router.post(
+                                        route("profileimage", {
+                                            id: auth.user.profile.id,
+                                        }),
+                                        formData,
+                                        { forceFormData: true },
+                                    );
                                 }
-                                alt="Payment Image"
-                                className="w-full h-full object-cover"
-                            />
+                            }}
+                        />
+
+                        <div className="relative">
+                            <div className="relative sm:w-28 sm:h-28 w-20 h-20 rounded-full overflow-hidden group">
+                                <img
+                                    src={
+                                        auth.user.profile_image
+                                            ? auth.user.profile_image
+                                            : "/image/no-image.webp"
+                                    }
+                                    alt="Profile"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+
+                            <div
+                                onClick={() => fileInputRef.current.click()}
+                                className="absolute cursor-pointer bottom-[-2px] right-[-5px] sm:bottom-1 sm:right-1 bg-teal-500 p-2 rounded-full shadow-md group-hover:scale-110 transition"
+                            >
+                                <MdOutlineCameraAlt
+                                    size={16}
+                                    className="text-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 className="text-lg font-semibold dark:text-secondary">
+                                {`${auth.user.name || ""}`}
+                            </h2>
+                            <p className="text-gray-500 text-sm dark:text-secondary">
+                                {auth.user.email}
+                            </p>
                         </div>
                     </div>
+
+                    <UpdateProfileInformationForm
+                        profile={profile}
+                        mustVerifyEmail={mustVerifyEmail}
+                        status={status}
+                        countries={countries}
+                        auth={auth}
+                        className=""
+                    />
                 </div>
-                {!userRole.includes('Client') && (
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg dark:bg-primary mt-5">
+                {!userRole.includes("Client") && (
+                    <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
                         <header>
-                            <h2 className="text-[18px] sm:text-[22px] font-medium text-gray-900 dark:text-white">
+                            <h2 className="text-custblack text-[22px] dark:text-secondary capitalize">
                                 Upload Your Nic Pictures
                             </h2>
-                            <p className="mt-1 text-sm text-gray-600 dark:text-secondary/90">
+                            <p className="mt-1 text-sm text-custblack dark:text-secondary/90">
                                 Upload high-quality NIC images for identity
                                 verification. Ensure all details are clearly
                                 visible.
@@ -128,85 +144,140 @@ export default function Edit({
                         </header>
                         <form
                             onSubmit={submit}
-                            className="mt-6 space-y-6"
+                            className="mt-6 space-y-5"
                             encType="multipart/form-data"
                         >
-                            <div className="py-3 w-full">
-                                <InputLabel
-                                    htmlFor="nic_f"
-                                    value="Nic Front"
-                                />
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-[20px]">
+                                <div className="py-3 w-full">
+                                    <InputLabel value="CNIC Front" />
 
-                                <input
-                                    id="nic_f"
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData("nic_f", e.target.files[0])
-                                    }
-                                    type="file"
-                                />
+                                    <div
+                                        onClick={() =>
+                                            nicFrontRef.current.click()
+                                        }
+                                        className="mt-2 bg-secondary border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-custgreen transition h-[200px] sm:h-[300px] flex items-center justify-center dark:bg-custdarkbg"
+                                    >
+                                        {nicFrontPreview ? (
+                                            <img
+                                                src={nicFrontPreview}
+                                                alt="CNIC Front"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div>
+                                                <p className="font-semibold text-custblack dark:text-secondary">
+                                                    Upload Your CNIC Front
+                                                    Picture
+                                                </p>
+                                                <p className="text-sm text-gray-500 dark:text-secondary/90">
+                                                    File size should not exceed
+                                                    2MB
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.nic_f}
-                                />
-                            </div>
+                                    <input
+                                        type="file"
+                                        ref={nicFrontRef}
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            setData("nic_f", file);
 
-                            <div className="py-3 w-full">
-                                <InputLabel
-                                    htmlFor="nic_b"
-                                    value="Nic Back"
-                                />
+                                            if (file) {
+                                                setNicFrontPreview(
+                                                    URL.createObjectURL(file),
+                                                );
+                                            }
+                                        }}
+                                    />
 
-                                <input
-                                    id="nic_b"
-                                    className="mt-1 block w-full"
-                                    onChange={(e) =>
-                                        setData("nic_b", e.target.files[0])
-                                    }
-                                    type="file"
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.nic_b}
-                                />
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.nic_f}
+                                    />
+                                </div>
+                                <div className="py-3 w-full">
+                                    <InputLabel value="CNIC Back" />
+
+                                    <div
+                                        onClick={() =>
+                                            nicBackRef.current.click()
+                                        }
+                                        className="mt-2 bg-secondary border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-custgreen transition h-[200px] sm:h-[300px] flex items-center justify-center dark:bg-custdarkbg"
+                                    >
+                                        {nicBackPreview ? (
+                                            <img
+                                                src={nicBackPreview}
+                                                alt="CNIC Back"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div>
+                                                <p className="font-semibold text-custblack dark:text-secondary">
+                                                    Upload Your CNIC Back
+                                                    Picture
+                                                </p>
+                                                <p className="text-sm text-gray-500 dark:text-secondary/90">
+                                                    File size should not exceed
+                                                    2MB
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <input
+                                        type="file"
+                                        ref={nicBackRef}
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            setData("nic_b", file);
+
+                                            if (file) {
+                                                setNicBackPreview(
+                                                    URL.createObjectURL(file),
+                                                );
+                                            }
+                                        }}
+                                    />
+
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.nic_b}
+                                    />
+                                </div>
                             </div>
                             <div className="flex items-center gap-4">
+                                <PrimaryButton
+                                    disabled={processing || progress}
+                                >
+                                    {processing ? "Saving..." : "Save"}
+                                </PrimaryButton>
                                 {progress && (
                                     <progress
+                                        className="progress-primary"
                                         value={progress.percentage}
                                         max="100"
                                     >
                                         {progress.percentage}%
                                     </progress>
                                 )}
-                                <PrimaryButton disabled={progress}>
-                                    Save
-                                </PrimaryButton>
-
-                                <Transition
-                                    show={recentlySuccessful}
-                                    enter="transition ease-in-out"
-                                    enterFrom="opacity-0"
-                                    leave="transition ease-in-out"
-                                    leaveTo="opacity-0"
-                                >
-                                    <p className="text-sm text-gray-600">
-                                        Add Brand
-                                    </p>
-                                </Transition>
                             </div>
                         </form>
                     </div>
                 )}
-                {userRole.includes('Admin') && (
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg dark:bg-primary mt-5">
+                {userRole.includes("Admin") && (
+                    <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
                         <UpdatePasswordForm />
                     </div>
                 )}
-                {userRole.includes('Admin') && (
-                    <div className="p-4 sm:p-8 bg-white shadow sm:rounded-lg dark:bg-primary mt-5">
-                        <DeleteUserForm className="max-w-xl" />
+                {userRole.includes("Admin") && (
+                    <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
+                        <DeleteUserForm className="" />
                     </div>
                 )}
             </div>

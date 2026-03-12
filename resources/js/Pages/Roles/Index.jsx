@@ -14,6 +14,7 @@ import { Transition } from "@headlessui/react";
 import { useEffect } from "react";
 import {
     IoEyeOutline,
+    IoFilter,
     IoPencilOutline,
 } from "react-icons/io5";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/Components/Table";
@@ -21,6 +22,7 @@ import ResetLink from "@/Components/ResetLink";
 import SearchInput from "@/Components/SearchInput";
 import DateRangeFilter from "@/Components/DateRangeFilter";
 import Pagination from "@/Components/Pagination";
+import { Drawer } from "@mui/material";
 export default function Index({ auth, editData, isEditMode, roles, pagination }) {
     const { can } = usePermissions();
     const [editClick, setEditClick] = useState(isEditMode);
@@ -31,13 +33,16 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
         patch,
         progress,
         recentlySuccessful,
+        processing,
         errors,
         reset,
     } = useForm({
         id: editData?.id || "",
         name: editData?.name || "",
     });
+    const [open, setOpen] = useState(false);
     const handleEditClick = (item) => {
+        setOpen(!open);
         setEditClick(true);
         router.visit(route("roles.index", { id: item.id }), {
             preserveState: true,
@@ -65,6 +70,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                     reset();
                     setSidebarState(false);
                     setEditClick(false);
+                    setOpen(false);
                 },
                 onError: () => { },
             });
@@ -73,6 +79,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                 onSuccess: () => {
                     reset();
                     setSidebarState(false);
+                    setOpen(false);
                 },
                 onError: () => { },
             });
@@ -131,18 +138,21 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
         <AuthenticatedLayout auth={auth}>
             <Head title="Roles" />
             <div >
-                <div className="flex font-semibold items-center leading-tight focus:ring-black text-primary text-xl justify-between mb-4">
-                    <h2 className="text-primary dark:text-secondary sm:text-[22px] text-[20px] font-semibold capitalize">
-                        All roles
+                <div className="flex items-center justify-between mb-[20px] flex-wrap sm:flex-nowrap">
+                    <h2 className="text-custblack text-[22px] dark:text-secondary capitalize">
+                        All Roles
                     </h2>
-                    <div className="text-primary dark:text-secondary md:text-sm text-xs">
-                        Per page {roles.total}/
-                        {roles.to || roles.length}
+                    <div className="text-primary dark:text-secondary md:text-sm text-xs w-full sm:w-auto text-end">
+                        <span className="inline-block font-semibold text-custblack dark:text-secondary">
+                            {roles.total > 0
+                                ? `Per page ${roles.from} – ${roles.to} / ${roles.total}`
+                                : "No records available"}
+                        </span>
                         {can("roles.create") && (
                             <label
                                 onClick={(e) => {
                                     setEditClick(false);
-                                    setSidebarState(true);
+                                    setOpen(!open);
                                 }}
                                 className="inline-flex items-center ml-4 px-4 py-2 font-medium bg-custgreen border border-transparent rounded text-[14px] text-white capitalize hover:border-custgreen hover:bg-transparent hover:text-custgreen dark:hover:bg-transparent dark:hover:border-custgreen dark:hover:text-custgreen transition-all duration-500"
                             >
@@ -151,9 +161,28 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                         )}
                     </div>
                 </div>
-                <div className="bg-white p-[20px] rounded dark:bg-primary">
-                    <div className="flex justify-end xl:justify-between relative text-end mb-[20px] gap-4 2xl:gap-0 flex-wrap xl:flex-nowrap items-start">
-                        <div className="flex justify-end gap-2 md:gap-4 w-full sm:w-auto lg:w-full xl:w-auto flex-wrap md:flex-nowrap lg:flex-wrap xl:flex-nowrap">
+                <div>
+                    <div className="bg-custbg p-[15px] sm:p-[20px] dark:bg-primary mb-[20px] relative rounded">
+                        <div className="mb-[20px] flex flex-wrap sm:flex-nowrap justify-between gap-[10px] sm:gap-0">
+                            <h3 className="text-custblack text-[20px] md:text-[22px] dark:text-secondary capitalize flex items-center gap-[10px]">
+                                <IoFilter />
+                                Filters
+                            </h3>
+                            <div className="flex flex-wrap items-center gap-[10px] justify-end sm:justify-start">
+                                <SearchInput
+                                    placeholder="Search by name & email"
+                                    value={searchQuery}
+                                    onChange={(val) => setSearchQuery(val)}
+                                    onSearch={handleSearch}
+                                />
+
+                                <ResetLink
+                                    routeName="roles.index"
+                                    label="Reset Filters"
+                                />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-12 gap-[10px] mb-[10px]">
                             <DateRangeFilter
                                 fromDate={fromDate}
                                 toDate={toDate}
@@ -163,19 +192,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                                 handleQuickRange={handleQuickRange}
                                 handlePagination={handlePagination}
                                 pagination={pagination}
-                            />
-                        </div>
-                        <div className="flex flex-wrap sm:flex-nowrap w-full sm:w-auto gap-3 sm:gap-0 justify-end sm:justify-normal items-center h-auto">
-                            <SearchInput
-                                placeholder="Search by name & email"
-                                value={searchQuery}
-                                onChange={(val) => setSearchQuery(val)}
-                                onSearch={handleSearch}
-                            />
-
-                            <ResetLink
-                                routeName="roles.index"
-                                label="Reset Filters"
+                                dayColumns="lg:!col-span-6"
                             />
                         </div>
                     </div>
@@ -247,81 +264,84 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                 </div>
                 <Pagination data={roles} />
             </div>
-            <div
-                className={`${sidebarState === true
-                    ? "visible opacity-1"
-                    : "hidden opacity-0"
-                    } z-[70] fixed left-0 top-0 w-[100%] transition-all duration-500 ease overlay-box h-full bg-[#0000006b]`}
-            ></div>
-
-            <div
-                className={`${sidebarState === true ? "right-0" : "-right-full"
-                    } fixed top-0 w-[100%] transition-all duration-500 ease z-[80] h-full overflow-y-auto`}
+            <Drawer
+                anchor="right"
+                open={open}
+                onClose={(event, reason) => {
+                    if (reason === "backdropClick") return;
+                    setOpen(false);
+                }}
+                PaperProps={{
+                    className:
+                        "custom-drawer-our md:rounded-s-[14px] !shadow-none",
+                }}
+                transitionDuration={{
+                    enter: 700,
+                    exit: 400,
+                }}
+                BackdropProps={{
+                    className: "!bg-black/30",
+                }}
             >
-                <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="side-inner 2xl:w-[35%] xl:w-[45%] lg:w-[50%] sm:w-[75%] w-[100%] ml-auto h-full"
-                >
-                    <ul className="bg-white min-h-full p-0 dark:bg-primary">
-                        <div className="flex justify-between border-b px-[15px] py-[10px]">
-                            <h4 className="text-gray-800 dark:text-secondary font-medium text-[18px]">
-                                {editClick === true ? "Edit" : "Add New"}{" "}
-                                Role
+                <div className="side-inner 2xl:w-[881px] xl:w-[700px] lg:w-[700px] w-full ml-auto h-full">
+                    <ul className="bg-white dark:bg-primary min-h-full md:rounded-s-xl p-0 ">
+                        <div className="bg-custgreen flex justify-between items-center border-b dark:border-transparent px-[20px] py-[12px]">
+                            <h4 className="text-secondary font-semibold text-[18px] sm:text-[17px]">
+                                {editClick === true ? "Edit" : "Add New"} Role
                             </h4>
                             <label
-                                onClick={(e) => {
-                                    setSidebarState(false)
+                                onClick={() => {
+                                    setOpen(false);
+                                    reset();
+                                    hasSetEditData.current = false;
+                                    setValidationErrors({});
                                 }}
-                                className="w-[30px] text-custgreen h-[30px] border hover:text-white border-custgreen transition-all duration-500 hover:bg-custgreen rounded-full flex justify-center items-center cursor-pointer"
+                                className=" text-secondary transition-all duration-500 cursor-pointer"
                             >
-                                <MdOutlineClose className="w-4 h-4" />
+                                <MdOutlineClose className="text-2xl" />
                             </label>
                         </div>
                         <form
                             onSubmit={Datasubmit}
-                            className="grid grid-cols-1 items-center justify-center px-[15px] py-[20px]"
+                            className="px-[15px] sm:px-[25px] py-[25px]"
                         >
-                            <div className="mb-4">
-                                <InputLabel htmlFor="name" value="Name" />
-                                <TextInput
-                                    id="name"
-                                    type="text"
-                                    value={data.name}
-                                    onChange={(e) =>
-                                        setData("name", e.target.value)
-                                    }
-                                    className="mt-1 block w-full"
-                                />
-                                <InputError message={errors.name} />
+                            <div className="grid grid-cols-12 gap-5 items-center dark:bg-custdarkbg bg-custbg py-[30px] px-[20px]">
+                                <div className="col-span-12">
+                                    <InputLabel htmlFor="name" value="Name" />
+                                    <TextInput
+                                        id="name"
+                                        type="text"
+                                        value={data.name}
+                                        onChange={(e) =>
+                                            setData("name", e.target.value)
+                                        }
+                                        className="mt-1 block w-full"
+                                    />
+                                    <InputError message={errors.name} />
+                                </div>
                             </div>
                             {!editClick === true && (
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 col-span-12 mt-[20px]">
+                                    <PrimaryButton
+                                        disabled={processing || progress}
+                                    >
+                                        {processing ? "Saving..." : "Save"}
+                                    </PrimaryButton>
                                     {progress && (
                                         <progress
+                                            className="progress-primary"
                                             value={progress.percentage}
                                             max="100"
                                         >
                                             {progress.percentage}%
                                         </progress>
                                     )}
-                                    <PrimaryButton disabled={progress}>
-                                        Save
-                                    </PrimaryButton>
-
-                                    <Transition
-                                        show={recentlySuccessful}
-                                        enter="transition ease-in-out"
-                                        enterFrom="opacity-0"
-                                        leave="transition ease-in-out"
-                                        leaveTo="opacity-0"
-                                    >
-                                    </Transition>
                                 </div>
                             )}
                         </form>
                     </ul>
                 </div>
-            </div>
+            </Drawer>
         </AuthenticatedLayout>
     );
 }

@@ -77,6 +77,7 @@ import {
 import { HiOutlineUserGroup } from "react-icons/hi";
 import { useRef } from "react";
 import Swal from "sweetalert2";
+import { Switch } from "@mui/material";
 export default function Authenticated({ auth, children }) {
     const { flash } = usePage().props;
     const [classAdd, setClassAdd] = useState(window.innerWidth >= 1280);
@@ -105,15 +106,15 @@ export default function Authenticated({ auth, children }) {
             toast.error(flash.error); // Show success toast
         }
     }, [flash]);
-
-
-    const [darkMode, setDarkMode] = useState(() => {
-        return localStorage.getItem("darkMode") === "true";
-    });
+    
     const roles = auth.user.roles.map((role) => role.name);
     const toggleClass = () => {
         setClassAdd((prev) => !prev);
     };
+
+    const [darkMode, setDarkMode] = useState(() => {
+        return localStorage.getItem("darkMode") === "true";
+    });
 
     useEffect(() => {
         const root = document.documentElement;
@@ -249,10 +250,10 @@ export default function Authenticated({ auth, children }) {
 
     return (
         <>
-            <div className="min-h-screen bg-[#f8f8fb] dark:bg-[#17212e]">
+            <div className="min-h-screen dark:bg-custdarkbg">
                 <nav className="dark:bg-primary bg-secondary fixed top-0 w-full left-0 !z-[60]">
-                    <div className="flex flex-wrap items-center justify-between sm:gap-y-0 border-b border-[#e8e8e8] dark:border-[#e5e7eb3d]">
-                        <div className="ham-menu w-[33%] sm:w-[30%] md:hidden">
+                    <div className="flex items-center justify-between sm:gap-y-0 border-b border-[#e8e8e8] dark:border-[#e5e7eb3d]">
+                        <div className="ham-menu md:hidden">
                             <button
                                 onClick={toggleClass}
                                 className="md:hidden pl-[15px] block"
@@ -265,8 +266,8 @@ export default function Authenticated({ auth, children }) {
                                 />
                             </button>
                         </div>
-                        <div className="w-[34%] sm:w-[40%] md:w-[45%] lg:w-[40%] xl:w-[24%] 2xl:w-[19%] head-logo-main">
-                            <div className="flex items-center xl:gap-[91px] lg:gap-[10px] md:w-[300px] lg:w-[330px] xl:w-[280px] 2xl:w-[330px] md:justify-between lg:justify-auto md:border-r dark:border-[#e5e7eb3d] sm:px-[10px] lg:px-[17px] py-[15px] 2xl:py-[10px] justify-center">
+                        <div className="">
+                            <div className="flex items-center xl:gap-[91px] lg:gap-[10px] md:w-[300px] lg:w-[330px] xl:w-[280px] 2xl:w-[330px] md:justify-between lg:justify-auto md:border-r dark:border-[#e5e7eb3d] px-4 py-[15px] 2xl:py-[10px] justify-center">
                                 <Link href="/">
                                     <ApplicationLogo />
                                 </Link>
@@ -283,8 +284,8 @@ export default function Authenticated({ auth, children }) {
                                 </button>
                             </div>
                         </div>
-                        <div className="head-tabs-main flex items-center gap-[15px] xl:gap-[0px] w-[33%] sm:w-[30%] md:w-[55%] lg:w-[60%] xl:w-[76%] 2xl:w-[81%] justify-end flex-wrap 2xl:flex-nowrap md:pe-[20px] lg:pe-[30px] pe-[15px]">
-                            <div className="flex gap-[15px] sm:gap-[20px] md:gap-[0px] sm:flex-nowrap flex-wrap items-center w-full lg:w-auto justify-end lg:justify-auto">
+                        <div className="head-tabs-main flex items-center gap-[15px] xl:gap-[0px] justify-end flex-wrap 2xl:flex-nowrap pe-3 sm:pe-5">
+                            <div className="flex gap-3 sm:gap-0 sm:flex-nowrap flex-wrap items-center w-full lg:w-auto justify-end lg:justify-auto">
                                 <div className="relative" ref={menuRef}>
                                     <button
                                         onClick={() =>
@@ -394,50 +395,68 @@ export default function Authenticated({ auth, children }) {
                                         </div>
                                     </div>
                                 </div>
-                                <label className="items-center gap-2 cursor-pointer mx-5 md:flex hidden">
+                                <label className="items-center gap-2 cursor-pointer mx-3 md:mx-5 hidden sm:flex">
                                     {/* Light Icon */}
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width="20"
-                                        height="20"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className={`${darkMode
-                                            ? "opacity-50"
-                                            : "opacity-100"
-                                            } transition-opacity duration-300 text-primary dark:text-white`}
+                                        className={`transition-all duration-500 w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] ${
+                                            darkMode ? "opacity-40" : "opacity-100"
+                                        } text-primary dark:text-white`}
                                     >
                                         <circle cx="12" cy="12" r="5" />
                                         <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" />
                                     </svg>
 
-                                    {/* Toggle */}
-                                    <input
-                                        type="checkbox"
-                                        className="toggle theme-controller border-primary dark:!border-white before:bg-primary !shadow-none !bg-transparent appearance-none checked:[background-image:none] outline-0 focus:ring-0 focus:ring-offset-0"
+                                    {/* MUI Switch */}
+                                    <Switch
                                         checked={darkMode}
                                         onChange={() => setDarkMode(!darkMode)}
+                                        sx={{
+                                            width: { xs: 36, sm: 40 },
+                                            height: 20,
+                                            padding: 0,
+                                            "& .MuiSwitch-switchBase": {
+                                                padding: "3px",
+                                                "&.Mui-checked": {
+                                                    transform: { xs: "translateX(16px)", sm: "translateX(20px)" },
+                                                    color: "#fff",
+                                                    "& + .MuiSwitch-track": {
+                                                        backgroundColor: "#1785a0",
+                                                        opacity: 1,
+                                                    },
+                                                },
+                                            },
+                                            "& .MuiSwitch-thumb": {
+                                                width: 14,
+                                                height: 14,
+                                                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                                            },
+                                            "& .MuiSwitch-track": {
+                                                borderRadius: 20,
+                                                backgroundColor: "#9ca3af",
+                                                opacity: 1,
+                                            },
+                                        }}
                                     />
 
                                     {/* Dark Icon */}
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
-                                        width="20"
-                                        height="20"
                                         viewBox="0 0 24 24"
                                         fill="none"
                                         stroke="currentColor"
                                         strokeWidth="2"
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
-                                        className={`${darkMode
-                                            ? "opacity-100"
-                                            : "opacity-50"
-                                            } transition-opacity duration-300 text-primary dark:text-white`}
+                                        className={`transition-all duration-500 w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] ${
+                                            darkMode ? "opacity-100" : "opacity-40"
+                                        } text-primary dark:text-white`}
                                     >
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                                     </svg>
@@ -501,7 +520,7 @@ export default function Authenticated({ auth, children }) {
                                     absolute
                                     z-40
                                     left-0
-                                    md:top-[135px] lg:top-[139px] xl:top-[69px] sm:top-[130px] top-[120px]
+                                    lg:top-[70px] xl:top-[69px] sm:top-[60px] top-[60px]
                                     h-[calc(100vh-70px)]
                                     bg-secondary
                                     dark:bg-primary
@@ -523,10 +542,10 @@ export default function Authenticated({ auth, children }) {
                                             : "/image/no-image.webp"
                                     }
                                     alt="Image"
-                                    className="w-[36px] 2xl:w-[42px] rounded"
+                                    className="w-[36px] h-[36px] 2xl:w-[42px] 2xl:h-[42px] object-cover rounded"
                                 />
-                                <h5 className="text-primary text-[15px] dark:text-secondary 2xl:text-[16px] font-medium max-w-[190px] break-words">
-                                    {auth.user?.first_name}
+                                <h5 className="text-custblack text-[15px] dark:text-secondary 2xl:text-[16px] font-medium max-w-[190px] break-words">
+                                    {auth.user?.name}
                                 </h5>
                             </div>
                             <ul>
@@ -690,7 +709,7 @@ export default function Authenticated({ auth, children }) {
                         </div>
                         <div
                             className={`${classAdd ? "2xl:ml-[330px] xl:ml-[280px]" : ""
-                                } text-primary transition-all duration-500 py-[160px] sm:py-[160px] xl:py-[110px] px-[20px] sm:px-[20px] lg:px-[30px]`}
+                                } text-primary transition-all duration-500 py-[90px] sm:py-[100px] lg:py-[110px] px-[20px] sm:px-[20px] lg:px-[30px]`}
                         >
                             {children}
                         </div>

@@ -8,58 +8,57 @@ import SelectComponent from "@/Components/SelectComponent";
 import TextArea from "@/Components/TextArea";
 
 export default function UpdateProfileInformation({
+    profile,
     mustVerifyEmail,
     status,
+    countries,
     auth,
     className = "",
 }) {
     const user = usePage().props.auth.user;
-    const { data, setData, patch, errors, processing, recentlySuccessful } =
-        useForm({
-            name: user.name,
-            last_name: "",
-            phone: "",
-            country: "",
-            city: "",
-            state: "",
-            zip_code: "",
-            account: "",
-            nic: "",
-            dob: "",
-            guardian_phone: "",
-            address: "",
-            email: user.email,
-        });
+    const {
+        data,
+        setData,
+        patch,
+        errors,
+        processing,
+        progress,
+        recentlySuccessful,
+    } = useForm({
+        name: profile?.first_name ?? user.name ?? "",
+        last_name: profile?.last_name ?? "",
+        phone: profile?.phone ?? "",
+        country_id: profile?.country_id ?? "",
+        city: profile?.city ?? "",
+        state: profile?.state ?? "",
+        zip_code: profile?.zip_code ?? "",
+        account: profile?.account ?? "",
+        nic: profile?.nic ?? "",
+        dob: profile?.dob ?? "",
+        guardian_phone: profile?.guardian_phone ?? "",
+        address: profile?.address ?? "",
+        email: profile?.email ?? user.email ?? "",
+    });
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route("profile.update", auth.currentProfile));
+        patch(route("profile.update", auth.user?.profile.id));
     };
 
-    let userRole = auth.user.roles[0].name;
+    const roles = auth.user.roles.map((role) => role.name);
 
     return (
         <section className={className}>
-            <header>
-                <h2 className="text-[18px] sm:text-[22px] font-medium text-gray-900 dark:text-white">
-                    Profile Information
-                </h2>
-                <p className="mt-1 text-sm text-gray-600 dark:text-secondary/90">
-                    Update your account's profile information and email address.
-                </p>
-            </header>
-
-            <form onSubmit={submit} className="mt-6 space-y-6">
+            <form onSubmit={submit}>
                 <div className="grid grid-cols-12 gap-5">
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
                         <InputLabel htmlFor="name" value="First Name" />
                         <TextInput
                             id="name"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.name}
                             type="text"
                             onChange={(e) => setData("name", e.target.value)}
-                            required
                             isFocused
                             autoComplete="name"
                         />
@@ -69,7 +68,7 @@ export default function UpdateProfileInformation({
                         <InputLabel htmlFor="last_name" value="Last Name" />
                         <TextInput
                             id="last_name"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.last_name}
                             type="text"
                             onChange={(e) =>
@@ -88,10 +87,9 @@ export default function UpdateProfileInformation({
                         <TextInput
                             id="email"
                             type="email"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.email}
                             onChange={(e) => setData("email", e.target.value)}
-                            required
                             autoComplete="username"
                         />
                         <InputError className="mt-2" message={errors.email} />
@@ -102,7 +100,7 @@ export default function UpdateProfileInformation({
                         <TextInput
                             id="phone"
                             type="number"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.phone}
                             onChange={(e) => setData("phone", e.target.value)}
                             autoComplete="phone"
@@ -115,18 +113,21 @@ export default function UpdateProfileInformation({
                     </div>
 
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                        <InputLabel htmlFor="country" value="Country" />
+                        <InputLabel htmlFor="country_id" value="Country" />
 
-                        <TextInput
-                            id="country"
-                            type="text"
-                            className="mt-1 block w-full"
-                            value={data.country}
-                            onChange={(e) => setData("country", e.target.value)}
-                            autoComplete="country"
+                        <SelectComponent
+                            id="country_id"
+                            value={data.country_id}
+                            onChange={(e) => setData("country_id", e)}
+                            options={countries}
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
+                            darkBgClass="dark:!bg-custdarkbg"
                         />
 
-                        <InputError className="mt-2" message={errors.country} />
+                        <InputError
+                            className="mt-2"
+                            message={errors.country_id}
+                        />
                     </div>
 
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
@@ -135,7 +136,7 @@ export default function UpdateProfileInformation({
                         <TextInput
                             id="city"
                             type="text"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.city}
                             onChange={(e) => setData("city", e.target.value)}
                             autoComplete="city"
@@ -150,7 +151,7 @@ export default function UpdateProfileInformation({
                         <TextInput
                             id="state"
                             type="text"
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.state}
                             onChange={(e) => setData("state", e.target.value)}
                             autoComplete="state"
@@ -164,8 +165,8 @@ export default function UpdateProfileInformation({
 
                         <TextInput
                             id="zip_code"
-                            type="number"
-                            className="mt-1 block w-full"
+                            type="text"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.zip_code}
                             onChange={(e) =>
                                 setData("zip_code", e.target.value)
@@ -177,7 +178,7 @@ export default function UpdateProfileInformation({
                             message={errors.zip_code}
                         />
                     </div>
-                    {userRole === "Client" ? (
+                    {roles.includes("Client") ? (
                         ""
                     ) : (
                         <>
@@ -187,7 +188,7 @@ export default function UpdateProfileInformation({
                                 <TextInput
                                     id="account"
                                     type="number"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full dark:!bg-custdarkbg"
                                     value={data.account}
                                     onChange={(e) =>
                                         setData("account", e.target.value)
@@ -206,7 +207,7 @@ export default function UpdateProfileInformation({
                                 <TextInput
                                     id="nic"
                                     type="number"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full dark:!bg-custdarkbg"
                                     value={data.nic}
                                     onChange={(e) =>
                                         setData("nic", e.target.value)
@@ -227,7 +228,7 @@ export default function UpdateProfileInformation({
                                 <TextInput
                                     id="dob"
                                     type="date"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full dark:!bg-custdarkbg"
                                     value={data.dob}
                                     onChange={(e) =>
                                         setData("dob", e.target.value)
@@ -248,12 +249,12 @@ export default function UpdateProfileInformation({
                                 <TextInput
                                     id="guardian_phone"
                                     type="number"
-                                    className="mt-1 block w-full"
+                                    className="mt-1 block w-full dark:!bg-custdarkbg"
                                     value={data.guardian_phone}
                                     onChange={(e) =>
                                         setData(
                                             "guardian_phone",
-                                            e.target.value
+                                            e.target.value,
                                         )
                                     }
                                     autoComplete="guardian_phone"
@@ -274,7 +275,7 @@ export default function UpdateProfileInformation({
                             type="text"
                             value={data.address}
                             onChange={(e) => setData("address", e.target.value)}
-                            className="mt-1 block w-full"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
                         />
                         <InputError className="mt-2" message={errors.address} />
                     </div>
@@ -302,14 +303,25 @@ export default function UpdateProfileInformation({
                     </div>
                 )}
 
-                <div className="flex items-center gap-4">
-                    <PrimaryButton disabled={processing}>Save</PrimaryButton>
+                <div className="flex items-center gap-4 mt-5">
+                    <PrimaryButton disabled={processing || progress}>
+                        {processing ? "Saving..." : "Save"}
+                    </PrimaryButton>
+                    {progress && (
+                        <progress
+                            className="progress-primary"
+                            value={progress.percentage}
+                            max="100"
+                        >
+                            {progress.percentage}%
+                        </progress>
+                    )}
 
                     <Transition
                         show={recentlySuccessful}
-                        enter="transition ease-in-out"
+                        enter="transition ease"
                         enterFrom="opacity-0"
-                        leave="transition ease-in-out"
+                        leave="transition ease"
                         leaveTo="opacity-0"
                     >
                         <p className="text-sm text-gray-600">Saved.</p>

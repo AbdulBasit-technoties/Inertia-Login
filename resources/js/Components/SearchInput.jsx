@@ -1,4 +1,5 @@
 import React from "react";
+import TextInput from "./TextInput";
 
 const SearchInput = ({
     placeholder = "Search...",
@@ -7,17 +8,17 @@ const SearchInput = ({
     onSearch,
 }) => {
     return (
-        <div className="relative w-full sm:w-[280px] md:w-auto">
+        <div className="relative w-full sm:w-[230px] md:w-auto">
             <div className="cust-search-filter relative flex items-center rounded overflow-hidden">
-                <input
+                <TextInput
                     type="text"
                     placeholder={placeholder}
-                    value={value}
+                    value={value ?? ""}
                     onChange={(e) => onChange(e.target.value)}
-                    className="dark:placeholder:text-gray-400 w-full px-2 md:px-4 h-[40px] !text-[14px] md:!text-[14px] md:!text-[14px] !ring-0 border dark:text-white border-custbord dark:bg-transparent dark:border-darkbord focus:outline-none focus:border-custgreen dark:focus:border-custgreen"
+                    className="dark:placeholder:text-gray-400 w-full px-2 md:px-4 !text-[14px] !ring-0 border rounded rounded-tr-none rounded-br-none dark:text-white border-custbord dark:!bg-custdarkbg focus:outline-none focus:border-custgreen dark:focus:border-custgreen"
                 />
                 <button
-                    className="p-3 bg-custgreen h-[40px] inline-block"
+                    className="p-3 bg-custgreen h-[45px] inline-block"
                     type="button"
                     onClick={onSearch}
                 >
