@@ -6,16 +6,13 @@ import { Link, useForm, usePage } from "@inertiajs/react";
 import { Transition } from "@headlessui/react";
 import SelectComponent from "@/Components/SelectComponent";
 import TextArea from "@/Components/TextArea";
+import { Gender } from "@/Components/Selection";
 
 export default function UpdateProfileInformation({
-    profile,
+    user,
     mustVerifyEmail,
     status,
-    countries,
-    auth,
-    className = "",
 }) {
-    const user = usePage().props.auth.user;
     const {
         data,
         setData,
@@ -25,36 +22,32 @@ export default function UpdateProfileInformation({
         progress,
         recentlySuccessful,
     } = useForm({
-        name: profile?.first_name ?? user.name ?? "",
-        last_name: profile?.last_name ?? "",
-        phone: profile?.phone ?? "",
-        country_id: profile?.country_id ?? "",
-        city: profile?.city ?? "",
-        state: profile?.state ?? "",
-        zip_code: profile?.zip_code ?? "",
-        account: profile?.account ?? "",
-        nic: profile?.nic ?? "",
-        dob: profile?.dob ?? "",
-        guardian_phone: profile?.guardian_phone ?? "",
-        address: profile?.address ?? "",
-        email: profile?.email ?? user.email ?? "",
+        name: user.name ?? "",
+        email: user.email ?? "",
+        phone: user.phone ?? "",
+        country: user.country ?? "",
+        city: user.city ?? "",
+        state: user.state ?? "",
+        zip_code: user.zip_code ?? "",
+        dob: user.dob ?? "",
+        gender: user.gender ?? "",
+        address: user.address ?? "",
     });
 
     const submit = (e) => {
         e.preventDefault();
-        patch(route("profile.update", auth.user?.profile.id));
+        patch(route("profile.update", user?.id));
     };
 
-    const roles = auth.user.roles.map((role) => role.name);
-
     return (
-        <section className={className}>
+        <section>
             <form onSubmit={submit}>
                 <div className="grid grid-cols-12 gap-5">
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                        <InputLabel htmlFor="name" value="First Name" />
+                        <InputLabel htmlFor="name" value="Name" />
                         <TextInput
                             id="name"
+                            name="name"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.name}
                             type="text"
@@ -65,27 +58,10 @@ export default function UpdateProfileInformation({
                         <InputError className="mt-2" message={errors.name} />
                     </div>
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                        <InputLabel htmlFor="last_name" value="Last Name" />
-                        <TextInput
-                            id="last_name"
-                            className="mt-1 block w-full dark:!bg-custdarkbg"
-                            value={data.last_name}
-                            type="text"
-                            onChange={(e) =>
-                                setData("last_name", e.target.value)
-                            }
-                            isFocused
-                            autoComplete="last_name"
-                        />
-                        <InputError
-                            className="mt-2"
-                            message={errors.last_name}
-                        />
-                    </div>
-                    <div className="col-span-12 md:col-span-6 lg:col-span-4">
                         <InputLabel htmlFor="email" value="Email" />
                         <TextInput
                             id="email"
+                            name="email"
                             type="email"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.email}
@@ -99,6 +75,7 @@ export default function UpdateProfileInformation({
 
                         <TextInput
                             id="phone"
+                            name="phone"
                             type="number"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.phone}
@@ -106,35 +83,29 @@ export default function UpdateProfileInformation({
                             autoComplete="phone"
                         />
 
-                        <InputError
-                            className="mt-2"
-                            message={errors.password}
-                        />
+                        <InputError className="mt-2" message={errors.phone} />
                     </div>
-
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                        <InputLabel htmlFor="country_id" value="Country" />
+                        <InputLabel htmlFor="country" value="Country" />
 
-                        <SelectComponent
-                            id="country_id"
-                            value={data.country_id}
-                            onChange={(e) => setData("country_id", e)}
-                            options={countries}
+                        <TextInput
+                            id="country"
+                            name="country"
+                            type="text"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
-                            darkBgClass="dark:!bg-custdarkbg"
+                            value={data.country}
+                            onChange={(e) => setData("country", e.target.value)}
+                            autoComplete="country"
                         />
 
-                        <InputError
-                            className="mt-2"
-                            message={errors.country_id}
-                        />
+                        <InputError className="mt-2" message={errors.country} />
                     </div>
-
                     <div className="col-span-12 md:col-span-6 lg:col-span-4">
                         <InputLabel htmlFor="city" value="City" />
 
                         <TextInput
                             id="city"
+                            name="city"
                             type="text"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.city}
@@ -150,6 +121,7 @@ export default function UpdateProfileInformation({
 
                         <TextInput
                             id="state"
+                            name="state"
                             type="text"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.state}
@@ -165,6 +137,7 @@ export default function UpdateProfileInformation({
 
                         <TextInput
                             id="zip_code"
+                            name="zip_code"
                             type="text"
                             className="mt-1 block w-full dark:!bg-custdarkbg"
                             value={data.zip_code}
@@ -178,100 +151,40 @@ export default function UpdateProfileInformation({
                             message={errors.zip_code}
                         />
                     </div>
-                    {roles.includes("Client") ? (
-                        ""
-                    ) : (
-                        <>
-                            <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                                <InputLabel htmlFor="account" value="Account" />
+                    <div className="col-span-12 md:col-span-6 lg:col-span-4">
+                        <InputLabel htmlFor="dob" value="Date Of Birth" />
 
-                                <TextInput
-                                    id="account"
-                                    type="number"
-                                    className="mt-1 block w-full dark:!bg-custdarkbg"
-                                    value={data.account}
-                                    onChange={(e) =>
-                                        setData("account", e.target.value)
-                                    }
-                                    autoComplete="account"
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.account}
-                                />
-                            </div>
-
-                            <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                                <InputLabel htmlFor="nic" value="Cnic" />
-
-                                <TextInput
-                                    id="nic"
-                                    type="number"
-                                    className="mt-1 block w-full dark:!bg-custdarkbg"
-                                    value={data.nic}
-                                    onChange={(e) =>
-                                        setData("nic", e.target.value)
-                                    }
-                                    autoComplete="nic"
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.nic}
-                                />
-                            </div>
-                            <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                                <InputLabel
-                                    htmlFor="dob"
-                                    value="Date Of Birth"
-                                />
-
-                                <TextInput
-                                    id="dob"
-                                    type="date"
-                                    className="mt-1 block w-full dark:!bg-custdarkbg"
-                                    value={data.dob}
-                                    onChange={(e) =>
-                                        setData("dob", e.target.value)
-                                    }
-                                    autoComplete="dob"
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.dob}
-                                />
-                            </div>
-                            <div className="col-span-12 md:col-span-6 lg:col-span-4">
-                                <InputLabel
-                                    htmlFor="guardian_phone"
-                                    value="Guardian Phone"
-                                />
-
-                                <TextInput
-                                    id="guardian_phone"
-                                    type="number"
-                                    className="mt-1 block w-full dark:!bg-custdarkbg"
-                                    value={data.guardian_phone}
-                                    onChange={(e) =>
-                                        setData(
-                                            "guardian_phone",
-                                            e.target.value,
-                                        )
-                                    }
-                                    autoComplete="guardian_phone"
-                                />
-                                <InputError
-                                    className="mt-2"
-                                    message={errors.guardian_phone}
-                                />
-                            </div>
-                        </>
-                    )}
-
+                        <TextInput
+                            id="dob"
+                            name="dob"
+                            type="date"
+                            className="mt-1 block w-full dark:!bg-custdarkbg"
+                            value={data.dob}
+                            onChange={(e) => setData("dob", e.target.value)}
+                            autoComplete="dob"
+                        />
+                        <InputError className="mt-2" message={errors.dob} />
+                    </div>
+                    <div className="col-span-12 md:col-span-6 lg:col-span-4">
+                        <InputLabel htmlFor="gender" value="Gender" />
+                        <SelectComponent
+                            id="gender"
+                            name="gender"
+                            value={data.gender}
+                            onChange={(e) => {
+                                (setData("gender", e), setData("model_id", ""));
+                            }}
+                            options={Gender}
+                            className="mt-1 block w-full text-gray-800"
+                        />
+                        <InputError message={errors.gender} />
+                    </div>
                     <div className="col-span-12">
                         <InputLabel htmlFor="address" value="Address" />
 
                         <TextArea
                             id="address"
+                            name="address"
                             type="text"
                             value={data.address}
                             onChange={(e) => setData("address", e.target.value)}

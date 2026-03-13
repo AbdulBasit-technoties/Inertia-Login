@@ -13,26 +13,25 @@ export default function Edit({
     auth,
     mustVerifyEmail,
     status,
-    profile,
-    countries,
+    user,
 }) {
-    const { data, setData, post, errors, progress, processing } = useForm({
-        id: auth.user.pid,
+    const { setData, post, errors, progress, processing } = useForm({
+        id: auth.user.id,
         nic_f: "",
         nic_b: "",
     });
     const submit = (e) => {
         e.preventDefault();
-        post(route("profile.image", { id: auth.user.pid }));
+        post(route("user.image", { id: auth.user.id }));
     };
     const userRole = auth.user.roles.map((role) => role.name);
 
     const [nicFrontPreview, setNicFrontPreview] = useState(
-        profile?.nic_f ?? null,
+        user?.nic_f ?? null,
     );
 
     const [nicBackPreview, setNicBackPreview] = useState(
-        profile?.nic_b ?? null,
+        user?.nic_b ?? null,
     );
 
     const nicFrontRef = useRef();
@@ -68,6 +67,8 @@ export default function Edit({
                         <input
                             type="file"
                             ref={fileInputRef}
+                            id="profile_image"
+                            name="profile_image"
                             className="hidden"
                             accept="image/*"
                             onChange={(e) => {
@@ -78,7 +79,7 @@ export default function Edit({
 
                                     router.post(
                                         route("profileimage", {
-                                            id: auth.user.profile.id,
+                                            id: auth.user.id,
                                         }),
                                         formData,
                                         { forceFormData: true },
@@ -122,12 +123,9 @@ export default function Edit({
                     </div>
 
                     <UpdateProfileInformationForm
-                        profile={profile}
+                        user={user}
                         mustVerifyEmail={mustVerifyEmail}
                         status={status}
-                        countries={countries}
-                        auth={auth}
-                        className=""
                     />
                 </div>
                 {!userRole.includes("Client") && (
@@ -178,6 +176,8 @@ export default function Edit({
                                     </div>
 
                                     <input
+                                        id="nic_f"
+                                        name="nic_f"
                                         type="file"
                                         ref={nicFrontRef}
                                         className="hidden"
@@ -230,6 +230,8 @@ export default function Edit({
 
                                     <input
                                         type="file"
+                                        id="nic_b"
+                                        name="nic_b"
                                         ref={nicBackRef}
                                         className="hidden"
                                         accept="image/*"

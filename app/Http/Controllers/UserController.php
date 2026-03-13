@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
-use App\Models\Country;
-use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -70,18 +68,10 @@ class UserController extends Controller
             abort(401);
         }
         $data = $request->validated();
-        $profile = Profile::create([
-            'first_name' => $data['name'],
-            'email' => $data['email'],
-        ]);
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'pid' => $profile->id,
-        ]);
-        $profile->update([
-            'uid' => $user->id
         ]);
 
         foreach ($request->role as $item) {
@@ -102,7 +92,13 @@ class UserController extends Controller
         if (!auth()->user()->can('users.show')) {
             abort(401);
         }
-        return redirect()->back();
+        $user = User::select('id', 'name', 'email')->find($id);
+        if (!$user) {
+            abort(401);
+        }
+        $activitiesPerPage = request('activities_per_page', 10);
+        $activities = $user->activities()->select('id', 'comment', 'created_at', 'pid')->with('user:id,profile_image')->orderBy('created_at', 'desc')->paginate($activitiesPerPage, ['*'], 'activities_page')->withQueryString();
+        return Inertia::render("Users/Show", compact('user', 'activities'));
     }
 
     /**

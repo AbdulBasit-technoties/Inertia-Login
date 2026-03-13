@@ -1,81 +1,18 @@
-import { useState } from "react";
 import ApplicationLogo from "@/Components/ApplicationLogo";
 import Dropdown from "@/Components/Dropdown";
 import SidebarLink from "@/Components/SidebarLink";
 import { ToastContainer, toast } from "react-toastify";
 import { Link, router, usePage } from "@inertiajs/react";
 import usePermissions from "@/Hooks/usePermissions";
-import { useEffect } from "react";
-import { SlCalender } from "react-icons/sl";
-import SelectComponent from "@/Components/SelectComponent";
+import { useState, useEffect, useRef } from "react";
 import "react-toastify/dist/ReactToastify.css";
+import { FaChevronDown, FaCriticalRole, FaUsers } from "react-icons/fa6";
 import {
-    FaBook,
-    FaChevronDown,
-    FaCriticalRole,
-    FaHandHoldingHeart,
-    FaRegAddressCard,
-    FaRegBuilding,
-    FaRegClock,
-    FaRegFlag,
-    FaRegHandScissors,
-    FaRegMoneyBill1,
-    FaRegUser,
-    FaRing,
-    FaUserInjured,
-    FaUsers,
-    FaUsersViewfinder,
-    FaUserTie,
-    FaUtensils,
-} from "react-icons/fa6";
-import { FaCalendarAlt, FaTachometerAlt } from "react-icons/fa";
-import {
-    IoCallOutline,
-    IoChatboxOutline,
-    IoCheckmarkDoneCircleOutline,
-    IoDocumentAttachOutline,
-    IoDocumentTextOutline,
-    IoEnterOutline,
-    IoGitPullRequestOutline,
-    IoLayersOutline,
     IoNotificationsOutline,
-    IoPricetagsOutline,
     IoSettingsOutline,
     IoSpeedometerOutline,
-    IoTimeOutline,
 } from "react-icons/io5";
-import {
-    MdHideSource,
-    MdInbox,
-    MdKeyboardArrowLeft,
-    MdKeyboardArrowRight,
-    MdMenu,
-    MdOutlineAttachMoney,
-    MdOutlineCurrencyBitcoin,
-    MdOutlineDangerous,
-    MdOutlineDateRange,
-    MdOutlineDesignServices,
-    MdOutlineGraphicEq,
-    MdOutlineHolidayVillage,
-    MdOutlineHomeWork,
-    MdOutlineLeaderboard,
-    MdOutlineManageAccounts,
-    MdOutlineMenuOpen,
-    MdOutlineMoney,
-    MdOutlineOtherHouses,
-    MdOutlinePayment,
-    MdOutlinePieChartOutline,
-    MdOutlineReport,
-    MdOutlineScale,
-    MdOutlineScreenRotation,
-    MdOutlineSettingsApplications,
-    MdOutlineSystemUpdateAlt,
-    MdOutlineTaskAlt,
-    MdOutlineTimeToLeave,
-    MdSwitchAccessShortcut,
-} from "react-icons/md";
-import { HiOutlineUserGroup } from "react-icons/hi";
-import { useRef } from "react";
+import { MdOutlineMenuOpen } from "react-icons/md";
 import Swal from "sweetalert2";
 import { Switch } from "@mui/material";
 export default function Authenticated({ auth, children }) {
@@ -89,7 +26,6 @@ export default function Authenticated({ auth, children }) {
                 setClassAdd(false);
             }
         };
-
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
@@ -100,42 +36,35 @@ export default function Authenticated({ auth, children }) {
     };
     useEffect(() => {
         if (flash && flash.message) {
-            toast.success(flash.message); // Show success toast
+            toast.success(flash.message);
         }
         if (flash && flash.error) {
-            toast.error(flash.error); // Show success toast
+            toast.error(flash.error);
         }
     }, [flash]);
-    
     const roles = auth.user.roles.map((role) => role.name);
     const toggleClass = () => {
         setClassAdd((prev) => !prev);
     };
-
     const [darkMode, setDarkMode] = useState(() => {
         return localStorage.getItem("darkMode") === "true";
     });
-
     useEffect(() => {
         const root = document.documentElement;
-
         if (darkMode) {
             root.classList.add("dark");
         } else {
             root.classList.remove("dark");
         }
-
         root.classList.add("transition-all", "duration-500");
-
         localStorage.setItem("darkMode", darkMode);
     }, [darkMode]);
     const menuRef = useRef(null);
     const [showNotifications, setShowNotifications] = useState(false);
     const dropdownRef = useRef(null);
     const [notifications, setNotifications] = useState(
-        usePage().props.notification || []
+        usePage().props.notification || [],
     );
-
     useEffect(() => {
         function handleClickOutside(event) {
             if (
@@ -161,7 +90,7 @@ export default function Authenticated({ auth, children }) {
         if (!window.Echo || !auth?.user) return;
 
         const channel = window.Echo.private(
-            `App.Models.User.${auth?.user?.id}`
+            `App.Models.User.${auth?.user?.id}`,
         );
         channel.listen(".main.notification", (e) => {
             const notifications = e.notifications || [];
@@ -171,7 +100,7 @@ export default function Authenticated({ auth, children }) {
                 const formatted = {
                     ...notif,
                     created_at: notif.created_at || new Date().toISOString(),
-                    recipient: notif.recipient || { photo_attached: null },
+                    receiver: notif.receiver || { photo_attached: null },
                     id: notif.id || Math.random().toString(36).substr(2, 9),
                     status: notif.status || "unread",
                 };
@@ -213,7 +142,7 @@ export default function Authenticated({ auth, children }) {
                             Swal.fire(
                                 "Cleared!",
                                 "All notifications have been marked as read.",
-                                "success"
+                                "success",
                             );
 
                             setNotifications([]); // ✨ Clear from UI
@@ -223,9 +152,9 @@ export default function Authenticated({ auth, children }) {
                             Swal.fire(
                                 "Error!",
                                 "Something went wrong while clearing notifications.",
-                                "error"
+                                "error",
                             ),
-                    }
+                    },
                 );
             }
         });
@@ -239,12 +168,12 @@ export default function Authenticated({ auth, children }) {
                 preserveScroll: true,
                 onSuccess: () => {
                     setNotifications((prev) =>
-                        prev.filter((n) => n.id !== notificationId)
+                        prev.filter((n) => n.id !== notificationId),
                     );
 
                     setShowNotifications(false);
                 },
-            }
+            },
         );
     };
 
@@ -259,10 +188,11 @@ export default function Authenticated({ auth, children }) {
                                 className="md:hidden pl-[15px] block"
                             >
                                 <MdOutlineMenuOpen
-                                    className={`${classAdd
-                                        ? ""
-                                        : "[transform:rotateY(180deg)]"
-                                        } text-[24px] dark:text-secondary text-primary`}
+                                    className={`${
+                                        classAdd
+                                            ? ""
+                                            : "[transform:rotateY(180deg)]"
+                                    } text-[24px] dark:text-secondary text-primary`}
                                 />
                             </button>
                         </div>
@@ -276,10 +206,11 @@ export default function Authenticated({ auth, children }) {
                                     className="hidden md:block"
                                 >
                                     <MdOutlineMenuOpen
-                                        className={`${classAdd
-                                            ? ""
-                                            : "[transform:rotateY(180deg)]"
-                                            } text-[24px] dark:text-secondary text-primary`}
+                                        className={`${
+                                            classAdd
+                                                ? ""
+                                                : "[transform:rotateY(180deg)]"
+                                        } text-[24px] dark:text-secondary text-primary`}
                                     />
                                 </button>
                             </div>
@@ -290,7 +221,7 @@ export default function Authenticated({ auth, children }) {
                                     <button
                                         onClick={() =>
                                             setShowNotifications(
-                                                !showNotifications
+                                                !showNotifications,
                                             )
                                         }
                                         className="relative block"
@@ -305,10 +236,11 @@ export default function Authenticated({ auth, children }) {
                                     <div
                                         ref={dropdownRef}
                                         className={`absolute right-0 mt-2 w-96 bg-white dark:bg-primary border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 transition-all duration-500 transform origin-top-right 
-            ${showNotifications
-                                                ? "opacity-100 scale-100 translate-y-0"
-                                                : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-                                            }`}
+            ${
+                showNotifications
+                    ? "opacity-100 scale-100 translate-y-0"
+                    : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
+            }`}
                                     >
                                         <div className="border-b border-gray-200 dark:border-gray-600 pt-4 pb-3 px-4 font-semibold text-black dark:text-white text-[18px]">
                                             Notifications
@@ -319,25 +251,28 @@ export default function Authenticated({ auth, children }) {
                                                     <li
                                                         onClick={() =>
                                                             handleNotificationClick(
-                                                                notification.id
+                                                                notification.id,
                                                             )
                                                         }
                                                         className="p-4 hover:bg-gray-100 dark:hover:bg-secondary/30 flex gap-3"
                                                         key={index}
                                                     >
                                                         <div
-                                                            className={`w-[11%] ${notification.status ===
+                                                            className={`w-[11%] ${
+                                                                notification.status ===
                                                                 "unread"
-                                                                ? "relative before:absolute before:w-[10px] before:h-[10px] before:bg-c2 before:rounded-[50%] before:left-[-5px] before:top-[-5px]"
-                                                                : ""
-                                                                }`}
+                                                                    ? "relative before:absolute before:w-[10px] before:h-[10px] before:bg-c2 before:rounded-[50%] before:left-[-5px] before:top-[-5px]"
+                                                                    : ""
+                                                            }`}
                                                         >
                                                             <img
                                                                 src={
                                                                     notification
                                                                         .sender
                                                                         ?.profile_image
-                                                                        ? notification?.sender.profile_image
+                                                                        ? notification
+                                                                              ?.sender
+                                                                              .profile_image
                                                                         : "/image/no-image.webp"
                                                                 }
                                                                 alt="Image"
@@ -357,16 +292,16 @@ export default function Authenticated({ auth, children }) {
                                                             </p>
                                                             <span className="dark:text-[#c1c1c1] inline-block text-[#6F6F6F] text-[11px]">
                                                                 {new Date(
-                                                                    notification.created_at
+                                                                    notification.created_at,
                                                                 ).toLocaleDateString()}{" "}
                                                                 &nbsp;{" "}
                                                                 {new Date(
-                                                                    notification.created_at
+                                                                    notification.created_at,
                                                                 ).toLocaleTimeString()}
                                                             </span>
                                                         </div>
                                                     </li>
-                                                )
+                                                ),
                                             )}
                                         </ul>
                                         <div className="py-3 px-4 border-t dark:border-gray-700">
@@ -383,7 +318,7 @@ export default function Authenticated({ auth, children }) {
                                                     <button
                                                         onClick={() =>
                                                             setShowNotifications(
-                                                                false
+                                                                false,
                                                             )
                                                         }
                                                         className="text-sm text-custgreen hover:underline font-semibold"
@@ -406,7 +341,9 @@ export default function Authenticated({ auth, children }) {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         className={`transition-all duration-500 w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] ${
-                                            darkMode ? "opacity-40" : "opacity-100"
+                                            darkMode
+                                                ? "opacity-40"
+                                                : "opacity-100"
                                         } text-primary dark:text-white`}
                                     >
                                         <circle cx="12" cy="12" r="5" />
@@ -424,10 +361,14 @@ export default function Authenticated({ auth, children }) {
                                             "& .MuiSwitch-switchBase": {
                                                 padding: "3px",
                                                 "&.Mui-checked": {
-                                                    transform: { xs: "translateX(16px)", sm: "translateX(20px)" },
+                                                    transform: {
+                                                        xs: "translateX(16px)",
+                                                        sm: "translateX(20px)",
+                                                    },
                                                     color: "#fff",
                                                     "& + .MuiSwitch-track": {
-                                                        backgroundColor: "#1785a0",
+                                                        backgroundColor:
+                                                            "#1785a0",
                                                         opacity: 1,
                                                     },
                                                 },
@@ -435,7 +376,8 @@ export default function Authenticated({ auth, children }) {
                                             "& .MuiSwitch-thumb": {
                                                 width: 14,
                                                 height: 14,
-                                                boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                                                boxShadow:
+                                                    "0 2px 6px rgba(0,0,0,0.2)",
                                             },
                                             "& .MuiSwitch-track": {
                                                 borderRadius: 20,
@@ -455,7 +397,9 @@ export default function Authenticated({ auth, children }) {
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         className={`transition-all duration-500 w-[16px] h-[16px] sm:w-[20px] sm:h-[20px] ${
-                                            darkMode ? "opacity-100" : "opacity-40"
+                                            darkMode
+                                                ? "opacity-100"
+                                                : "opacity-40"
                                         } text-primary dark:text-white`}
                                     >
                                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
@@ -473,9 +417,11 @@ export default function Authenticated({ auth, children }) {
                                                     >
                                                         <img
                                                             src={
-                                                                auth.profile
+                                                                auth.user
                                                                     ?.profile_image
-                                                                    ? auth.profile?.profile_image
+                                                                    ? auth
+                                                                          .user
+                                                                          ?.profile_image
                                                                     : "/image/no-image.webp"
                                                             }
                                                             className="w-[30px] h-[30px] sm:w-[40px] sm:h-[40px] object-cover rounded-[50%]"
@@ -512,10 +458,11 @@ export default function Authenticated({ auth, children }) {
                     <div className="transition-all duration-500">
                         <div
                             className={`
-                                    ${classAdd
-                                    ? ""
-                                    : "transform -translate-x-full"
-                                }
+                                    ${
+                                        classAdd
+                                            ? ""
+                                            : "transform -translate-x-full"
+                                    }
                                      xl:fixed
                                     absolute
                                     z-40
@@ -559,10 +506,11 @@ export default function Authenticated({ auth, children }) {
                                     >
                                         <span
                                             className={`flex items-center gap-1 text-[15px] sm:text-[16px] font-medium transition-all duration-500 mb-[10px]
-            ${route().current("dashboard")
-                                                    ? "text-[#15ABA2]"
-                                                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
-                                                }`}
+            ${
+                route().current("dashboard")
+                    ? "text-[#15ABA2]"
+                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
+            }`}
                                         >
                                             <IoSpeedometerOutline className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded me-[8px] dark:text-primary" />{" "}
                                             Dashboard
@@ -570,47 +518,49 @@ export default function Authenticated({ auth, children }) {
                                     </SidebarLink>
                                 </li>
                                 {can("users.index") && (
-                                            <li>
-                                                <SidebarLink
-                                                    href={route("users.index")}
-                                                    active={route().current(
-                                                        "users.index"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={`flex items-center gap-1 text-[15px] sm:text-[16px] font-medium transition-all duration-500 mb-[10px]
-            ${route().current("users.index")
-                                                                ? "text-[#15ABA2]"
-                                                                : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
-                                                            }`}
-                                                    >
-                                                        <FaUsers className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded me-[8px] dark:text-primary" />{" "}
-                                                        Users
-                                                    </span>
-                                                </SidebarLink>
-                                            </li>
-                                        )}
-                                        {can("roles.index") && (
-                                            <li>
-                                                <SidebarLink
-                                                    href={route("roles.index")}
-                                                    active={route().current(
-                                                        "roles.index"
-                                                    )}
-                                                >
-                                                    <span
-                                                        className={`flex items-center gap-1 text-[15px] sm:text-[16px] font-medium transition-all duration-500 mb-[10px]
-            ${route().current("roles.index")
-                                                                ? "text-[#15ABA2]"
-                                                                : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
-                                                            }`}
-                                                    >
-                                                        <FaCriticalRole className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded me-[8px] dark:text-primary" />{" "}
-                                                        Roles
-                                                    </span>
-                                                </SidebarLink>
-                                            </li>
-                                        )}
+                                    <li>
+                                        <SidebarLink
+                                            href={route("users.index")}
+                                            active={route().current(
+                                                "users.index",
+                                            )}
+                                        >
+                                            <span
+                                                className={`flex items-center gap-1 text-[15px] sm:text-[16px] font-medium transition-all duration-500 mb-[10px]
+            ${
+                route().current("users.index")
+                    ? "text-[#15ABA2]"
+                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
+            }`}
+                                            >
+                                                <FaUsers className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded me-[8px] dark:text-primary" />{" "}
+                                                Users
+                                            </span>
+                                        </SidebarLink>
+                                    </li>
+                                )}
+                                {can("roles.index") && (
+                                    <li>
+                                        <SidebarLink
+                                            href={route("roles.index")}
+                                            active={route().current(
+                                                "roles.index",
+                                            )}
+                                        >
+                                            <span
+                                                className={`flex items-center gap-1 text-[15px] sm:text-[16px] font-medium transition-all duration-500 mb-[10px]
+            ${
+                route().current("roles.index")
+                    ? "text-[#15ABA2]"
+                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
+            }`}
+                                            >
+                                                <FaCriticalRole className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded me-[8px] dark:text-primary" />{" "}
+                                                Roles
+                                            </span>
+                                        </SidebarLink>
+                                    </li>
+                                )}
                                 <h6 className="text-custgray font-medium dark:text-secondary uppercase text-[13px] mb-3 mt-4">
                                     Setting
                                 </h6>
@@ -618,34 +568,37 @@ export default function Authenticated({ auth, children }) {
                                     <div
                                         className={`flex group items-center justify-between p-2 mb-2 rounded-sm cursor-pointer
             dark:text-secondary text-primary  
-            ${["profile.edit"].some((profileName) =>
-                                            route().current(profileName)
-                                        ) || isSubNavOpen === "profile"
-                                                ? "text-[#15ABA2]"
-                                                : ""
-                                            }`}
+            ${
+                ["profile.edit"].some((profileName) =>
+                    route().current(profileName),
+                ) || isSubNavOpen === "profile"
+                    ? "text-[#15ABA2]"
+                    : ""
+            }`}
                                         onClick={() => toggleSubNav("profile")}
                                     >
                                         <span
                                             className={`flex items-center gap-1 font-medium text-[15px] sm:text-[16px] group-hover:text-[#15ABA2] transition duration-500 ease-in-out
-                ${["profile.edit"].some((profileName) =>
-                                                route().current(profileName)
-                                            ) || isSubNavOpen === "profile"
-                                                    ? "text-[#15ABA2]"
-                                                    : "dark:text-secondary text-primary"
-                                                }`}
+                ${
+                    ["profile.edit"].some((profileName) =>
+                        route().current(profileName),
+                    ) || isSubNavOpen === "profile"
+                        ? "text-[#15ABA2]"
+                        : "dark:text-secondary text-primary"
+                }`}
                                         >
                                             <IoSettingsOutline className="w-[26px] h-[26px] inline-block p-[5px] bg-custbg rounded dark:text-primary me-[8px]" />{" "}
                                             Settings
                                         </span>
                                         <FaChevronDown
                                             className={`transition-all duration-300 group-hover:text-[#15ABA2] w-[11px] sm:w-[13px]
-                ${["profile.edit"].some((profileName) =>
-                                                route().current(profileName)
-                                            ) || isSubNavOpen === "profile"
-                                                    ? "text-[#15ABA2]"
-                                                    : "dark:text-secondary text-primary"
-                                                }`}
+                ${
+                    ["profile.edit"].some((profileName) =>
+                        route().current(profileName),
+                    ) || isSubNavOpen === "profile"
+                        ? "text-[#15ABA2]"
+                        : "dark:text-secondary text-primary"
+                }`}
                                         />
                                     </div>
                                     {isSubNavOpen === "profile" && (
@@ -654,18 +607,19 @@ export default function Authenticated({ auth, children }) {
                                                 <li className="ml-[25px] relative before:absolute before:w-[1px] before:-left-1 before:top-1 after:-left-[6px] before:h-[10px] after:absolute after:w-[6px] after:h-[6px] after:top-[20px] after:transform after:-translate-y-1/2 after:rounded-full after:bg-custgray after:dark:bg-white before:bg-custgray before:dark:bg-white">
                                                     <SidebarLink
                                                         href={route(
-                                                            "settings.index"
+                                                            "settings.index",
                                                         )}
                                                         active={route().current(
-                                                            "settings.index"
+                                                            "settings.index",
                                                         )}
                                                     >
                                                         <span
                                                             className={`ml-3 font-[500] text-[14px] sm:text-[15px] transition-all duration-500 
-                            ${route().current("settings.index")
-                                                                    ? "text-[#15ABA2]"
-                                                                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
-                                                                }`}
+                            ${
+                                route().current("settings.index")
+                                    ? "text-[#15ABA2]"
+                                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
+                            }`}
                                                         >
                                                             Company Setting
                                                         </span>
@@ -676,15 +630,16 @@ export default function Authenticated({ auth, children }) {
                                                 <SidebarLink
                                                     href={route("profile.edit")}
                                                     active={route().current(
-                                                        "profile.edit"
+                                                        "profile.edit",
                                                     )}
                                                 >
                                                     <span
                                                         className={`ml-3 font-[500] text-[14px] sm:text-[15px] transition-all duration-500 
-                            ${route().current("profile.edit")
-                                                                ? "text-[#15ABA2]"
-                                                                : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
-                                                            }`}
+                            ${
+                                route().current("profile.edit")
+                                    ? "text-[#15ABA2]"
+                                    : "dark:text-secondary text-primary group-hover:text-[#15ABA2]"
+                            }`}
                                                     >
                                                         Profile
                                                     </span>
@@ -708,8 +663,9 @@ export default function Authenticated({ auth, children }) {
                             </ul>
                         </div>
                         <div
-                            className={`${classAdd ? "2xl:ml-[330px] xl:ml-[280px]" : ""
-                                } text-primary transition-all duration-500 py-[90px] sm:py-[100px] lg:py-[110px] px-[20px] sm:px-[20px] lg:px-[30px]`}
+                            className={`${
+                                classAdd ? "2xl:ml-[330px] xl:ml-[280px]" : ""
+                            } text-primary transition-all duration-500 py-[90px] sm:py-[100px] lg:py-[110px] px-[20px] sm:px-[20px] lg:px-[30px]`}
                         >
                             {children}
                         </div>

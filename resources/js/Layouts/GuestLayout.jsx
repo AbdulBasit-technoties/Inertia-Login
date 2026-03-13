@@ -1,6 +1,3 @@
-import ApplicationLogo from "@/Components/ApplicationLogo";
-import { Link } from "@inertiajs/react";
-
 export default function Guest({ children, brand }) {
     return (
         <div className="sm:flex flex-wrap justify-center dark:bg-[#17212e] bg-custbg sm:items-center py-[50px] lg:py-[0px] h-screen sm:h-fit lg:h-screen">

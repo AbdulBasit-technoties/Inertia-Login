@@ -1,24 +1,18 @@
-import { useState } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import Swal from "sweetalert2";
-import { FaEdit } from "react-icons/fa";
-import { FaEye } from "react-icons/fa";
 import { MdAdd, MdDelete, MdOutlineClose, MdRemove } from "react-icons/md";
 import TextInput from "@/Components/TextInput";
 import InputLabel from "@/Components/InputLabel";
 import InputError from "@/Components/InputError";
-import { FaRegUser } from "react-icons/fa6";
-import { IoEyeOutline, IoFilter, IoKeyOutline, IoPencilOutline } from "react-icons/io5";
+import { IoEyeOutline, IoFilter, IoPencilOutline } from "react-icons/io5";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Transition } from "@headlessui/react";
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/Components/Table";
 import MultiSelectComponent from "@/Components/MultiSelectComponent";
 import Pagination from "@/Components/Pagination";
 import usePermissions from "@/Hooks/usePermissions";
 import { Accordion, AccordionDetails, AccordionSummary, Drawer, Typography } from "@mui/material";
-import { useRef } from "react";
 import SearchInput from "@/Components/SearchInput";
 import ResetLink from "@/Components/ResetLink";
 import DateRangeFilter from "@/Components/DateRangeFilter";
@@ -62,7 +56,6 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
     const [passwordErrors, setPasswordErrors] = useState({
         confirm_password: null,
     });
-    // Initialize form with safe defaults
     const {
         data,
         setData,
@@ -73,10 +66,10 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
         errors,
         reset,
     } = useForm({
-        id: editData?.id || "",
-        name: editData?.name || "",
-        email: editData?.email || "",
-        password: editData?.password || "",
+        id: "",
+        name: "",
+        email: "",
+        password: "",
         password_confirmation: "",
         role: ""
     });
@@ -277,114 +270,8 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                         Status
                                     </span>
                                     <SelectComponent
-                                        value={status}
-                                        onChange={(e) => {
-                                            router.get(
-                                                route("users.index"),
-                                                {
-                                                    from_date: fromDate,
-                                                    to_date: toDate,
-                                                    quick_range: quickRange,
-                                                    search: searchQuery,
-                                                    pagination: pagination,
-                                                    status: e,
-                                                },
-                                                {
-                                                    preserveState: true,
-                                                    replace: true,
-                                                    only: [
-                                                        "status",
-                                                        "users",
-                                                    ],
-                                                },
-                                            );
-                                        }}
-                                        placeholder="Status"
-                                        options={[
-                                            { value: "active", label: "Active" },
-                                            { value: "inactive", label: "Inactive" },
-                                        ]}
-                                        className="block w-full"
-                                        darkBgClass="dark:!bg-custdarkbg"
-                                    />
-                                </div>
-                                <div className="text-left col-span-12 sm:col-span-6 lg:col-span-4 2xl:col-span-3">
-                                    <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary">
-                                        Status
-                                    </span>
-                                    <SelectComponent
-                                        value={status}
-                                        onChange={(e) => {
-                                            router.get(
-                                                route("users.index"),
-                                                {
-                                                    from_date: fromDate,
-                                                    to_date: toDate,
-                                                    quick_range: quickRange,
-                                                    search: searchQuery,
-                                                    pagination: pagination,
-                                                    status: e,
-                                                },
-                                                {
-                                                    preserveState: true,
-                                                    replace: true,
-                                                    only: [
-                                                        "status",
-                                                        "users",
-                                                    ],
-                                                },
-                                            );
-                                        }}
-                                        placeholder="Status"
-                                        options={[
-                                            { value: "active", label: "Active" },
-                                            { value: "inactive", label: "Inactive" },
-                                        ]}
-                                        className="block w-full"
-                                        darkBgClass="dark:!bg-custdarkbg"
-                                    />
-                                </div>
-                                <div className="text-left col-span-12 sm:col-span-6 lg:col-span-4 2xl:col-span-3">
-                                    <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary">
-                                        Status
-                                    </span>
-                                    <SelectComponent
-                                        value={status}
-                                        onChange={(e) => {
-                                            router.get(
-                                                route("users.index"),
-                                                {
-                                                    from_date: fromDate,
-                                                    to_date: toDate,
-                                                    quick_range: quickRange,
-                                                    search: searchQuery,
-                                                    pagination: pagination,
-                                                    status: e,
-                                                },
-                                                {
-                                                    preserveState: true,
-                                                    replace: true,
-                                                    only: [
-                                                        "status",
-                                                        "users",
-                                                    ],
-                                                },
-                                            );
-                                        }}
-                                        placeholder="Status"
-                                        options={[
-                                            { value: "active", label: "Active" },
-                                            { value: "inactive", label: "Inactive" },
-                                        ]}
-                                        className="block w-full"
-                                        darkBgClass="dark:!bg-custdarkbg"
-                                    />
-                                </div>
-                                <div className="text-left col-span-12 sm:col-span-6 lg:col-span-4 2xl:col-span-3">
-                                    <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary">
-                                        Status
-                                    </span>
-                                    <SelectComponent
+                                        id="status"
+                                        name="status"
                                         value={status}
                                         onChange={(e) => {
                                             router.get(
@@ -504,257 +391,6 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                 </div>
                 <Pagination data={UserData} />
             </div>
-            {/* <div
-                className={`${sidebarState === true
-                        ? "visible opacity-1"
-                        : "hidden opacity-0"
-                    } z-[70] fixed left-0 top-0 w-[100%] transition-all duration-500 ease overlay-box h-full bg-[#0000006b]`}
-            ></div> */}
-            {/* <div
-                className={`${sidebarState === true ? "right-0" : "-right-full"
-                    } fixed top-0 w-[100%] transition-all duration-500 ease z-[80] h-full overflow-y-auto`}
-            >
-                <div
-                    onClick={(e) => e.stopPropagation()}
-                    className="side-inner 2xl:w-[35%] xl:w-[45%] lg:w-[50%] sm:w-[75%] w-[100%] ml-auto h-full"
-                >
-                    <ul className="bg-white min-h-full p-0 dark:bg-primary">
-                        <div className="flex justify-between border-b px-[15px] py-[10px]">
-                            <h4 className="text-gray-800 dark:text-secondary font-medium text-[18px]">
-                                {editClick === true ? "Edit" : "Add New"} User
-                            </h4>
-                            <label
-                                onClick={(e) => setSidebarState(false)}
-                                className="w-[30px] text-custgreen h-[30px] border hover:text-white border-custgreen transition-all duration-500 hover:bg-custgreen rounded-full flex justify-center items-center cursor-pointer"
-                            >
-                                <MdOutlineClose className="w-4 h-4" />
-                            </label>
-                        </div>
-
-                        <div className="collapse collapse-arrow border border-custbord mb-4">
-                            <input
-                                type="radio"
-                                name="my-accordion-2"
-                                className="!p-[2rem]"
-                                defaultChecked
-                            />
-                            <div className="collapse-title text-primary font-medium text-[15px] border-b flex items-center dark:text-secondary gap-1 py-[12px]">
-                                <FaRegUser className="w-[40px] h-[40px] border border-custbord rounded p-[10px] me-[6px]" />
-                                User Info
-                            </div>
-                            <div className="collapse-content">
-                                <form
-                                    onSubmit={submit}
-                                    className="grid grid-cols-1 items-center justify-center px-[15px] py-[20px]"
-                                >
-                                    <div className="grid grid-cols-12 gap-4 pt-4 items-center text-primary">
-                                        <div className="col-span-12">
-                                            <InputLabel
-                                                htmlFor="name"
-                                                value="Name"
-                                            />
-                                            <TextInput
-                                                id="name"
-                                                className="mt-1 block w-full"
-                                                value={data.name}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "name",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                required
-                                                isFocused
-                                                autoComplete="name"
-                                                type="text"
-                                            />
-                                            <InputError
-                                                className="mt-2"
-                                                message={errors.name}
-                                            />
-                                        </div>
-                                        <div className="col-span-12">
-                                            <InputLabel
-                                                htmlFor="email"
-                                                value="Email"
-                                            />
-                                            <TextInput
-                                                id="email"
-                                                type="email"
-                                                className="mt-1 block w-full"
-                                                value={data.email}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        "email",
-                                                        e.target.value
-                                                    )
-                                                }
-                                                required
-                                                autoComplete="username"
-                                            />
-                                            <InputError
-                                                className="mt-2"
-                                                message={errors.email}
-                                            />
-                                        </div>
-                                        {!editClick === true && (
-                                            <div className="col-span-12">
-                                                <InputLabel
-                                                    htmlFor="password"
-                                                    value="Password"
-                                                />
-                                                <TextInput
-                                                    id="password"
-                                                    type="password"
-                                                    className="mt-1 block w-full"
-                                                    value={data.password}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "password",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    required
-                                                    autoComplete="username"
-                                                />
-                                                <InputError
-                                                    className="mt-2"
-                                                    message={errors.password}
-                                                />
-                                            </div>
-                                        )}
-                                        <div className="col-span-12">
-                                            <InputLabel
-                                                htmlFor="role"
-                                                value="Roles"
-                                            />
-                                            <MultiSelectComponent
-                                                id="role"
-                                                value={data.role}
-                                                onChange={(e) =>
-                                                    setData("role", e)
-                                                }
-                                                options={roles}
-                                                className="mt-1 block w-full text-gray-800"
-                                                isMulti={true}
-                                            />
-                                            <InputError
-                                                className="mt-2"
-                                                message={errors.role}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-4 mt-4">
-                                        {progress && (
-                                            <progress
-                                                value={progress.percentage}
-                                                max="100"
-                                            >
-                                                {progress.percentage}%
-                                            </progress>
-                                        )}
-                                        <PrimaryButton disabled={progress}>
-                                            Save
-                                        </PrimaryButton>
-
-                                        <Transition
-                                            show={recentlySuccessful}
-                                            enter="transition ease-in-out"
-                                            enterFrom="opacity-0"
-                                            leave="transition ease-in-out"
-                                            leaveTo="opacity-0"
-                                        >
-                                            <p className="text-sm text-gray-600">
-                                                Add Brand
-                                            </p>
-                                        </Transition>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        {editClick === true && (
-                            <div className="collapse collapse-arrow border border-custbord mb-4">
-                                <input
-                                    type="radio"
-                                    name="my-accordion-2"
-                                    className="!p-[2rem]"
-                                />
-                                <div className="collapse-title text-primary font-medium text-[15px] border-b flex items-center dark:text-secondary gap-1 py-[12px]">
-                                    <IoKeyOutline className="w-[40px] h-[40px] border border-custbord rounded p-[10px] me-[6px]" />
-                                    Change Password
-                                </div>
-                                <div className="collapse-content">
-                                    <form
-                                        onSubmit={changePassword}
-                                        className="grid grid-cols-1 items-center justify-center px-[15px] py-[20px]"
-                                    >
-                                        <div className="grid grid-cols-12 gap-4 pt-4 items-center">
-                                            <div className="col-span-12">
-                                                <InputLabel
-                                                    htmlFor="password"
-                                                    value="Password"
-                                                />
-                                                <TextInput
-                                                    id="password"
-                                                    className="mt-1 block w-full"
-                                                    value={data.password}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "password",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    required
-                                                    autoComplete="new-password"
-                                                    type="password"
-                                                />
-                                                <InputError
-                                                    className="mt-2"
-                                                    message={errors.password}
-                                                />
-                                            </div>
-                                            <div className="col-span-12">
-                                                <InputLabel
-                                                    htmlFor="password_confirmation"
-                                                    value="Confirm Password"
-                                                />
-                                                <TextInput
-                                                    id="password_confirmation"
-                                                    className="mt-1 block w-full"
-                                                    value={
-                                                        data.password_confirmation
-                                                    }
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "password_confirmation",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    required
-                                                    autoComplete="new-password"
-                                                    type="password"
-                                                />
-                                                <InputError
-                                                    className="mt-2"
-                                                    message={
-                                                        passwordErrors.password_confirmation
-                                                    }
-                                                />
-                                            </div>
-                                            <div className="col-span-12">
-                                                <PrimaryButton>
-                                                    Change Password
-                                                </PrimaryButton>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        )}
-                    </ul>
-                </div>
-            </div> */}
-
             <Drawer
                 anchor="right"
                 open={open}
@@ -873,15 +509,15 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <TextInput
                                                             id="name"
+                                                            name="name"
                                                             className="mt-1 block w-full"
-                                                            value={data.name}
+                                                            value={data.name || ""}
                                                             onChange={(e) =>
                                                                 setData(
                                                                     "name",
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            required
                                                             isFocused
                                                             autoComplete="name"
                                                             type="text"
@@ -898,9 +534,10 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <TextInput
                                                             id="email"
+                                                            name="email"
                                                             type="email"
                                                             className="mt-1 block w-full"
-                                                            value={data.email}
+                                                            value={data.email || ""}
                                                             onChange={(e) =>
                                                                 setData(
                                                                     "email",
@@ -923,16 +560,16 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                             />
                                                             <TextInput
                                                                 id="password"
+                                                                name="password"
                                                                 type="password"
                                                                 className="mt-1 block w-full"
-                                                                value={data.password}
+                                                                value={data.password || ""}
                                                                 onChange={(e) =>
                                                                     setData(
                                                                         "password",
                                                                         e.target.value
                                                                     )
                                                                 }
-                                                                required
                                                                 autoComplete="username"
                                                             />
                                                             <InputError
@@ -948,7 +585,8 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <MultiSelectComponent
                                                             id="role"
-                                                            value={data.role}
+                                                            name="role"
+                                                            value={data.role || ""}
                                                             onChange={(e) =>
                                                                 setData("role", e)
                                                             }
@@ -1073,8 +711,9 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                             />
                                                             <TextInput
                                                                 id="password"
+                                                                name="password"
                                                                 className="mt-1 block w-full"
-                                                                value={data.password}
+                                                                value={data.password || ""}
                                                                 onChange={(e) =>
                                                                     setData(
                                                                         "password",
@@ -1097,9 +736,10 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                             />
                                                             <TextInput
                                                                 id="password_confirmation"
+                                                                name="password_confirmation"
                                                                 className="mt-1 block w-full"
                                                                 value={
-                                                                    data.password_confirmation
+                                                                    data.password_confirmation || ""
                                                                 }
                                                                 onChange={(e) =>
                                                                     setData(

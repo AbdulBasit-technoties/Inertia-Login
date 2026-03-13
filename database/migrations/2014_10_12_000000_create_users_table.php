@@ -14,20 +14,28 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->longText('email')->nullable();
-            $table->text('phone')->nullable();
+
+            $table->string('email')->unique();
+
+            $table->string('phone')->unique();
+
             $table->string('country')->nullable();
-            $table->string('city')->nullable();
             $table->string('state')->nullable();
+            $table->string('city')->nullable();
+
             $table->string('zip_code')->nullable();
             $table->string('address')->nullable();
+            $table->date('dob')->nullable();
+            $table->string('gender')->nullable();
             $table->string('profile_image')->nullable();
+            $table->string('nic_f')->nullable();
+            $table->string('nic_b')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('active_status', ['active', 'inactive'])->default('active');
-            $table->enum('delete_status', ['delete', 'restore'])->default('restore');
+            $table->boolean('is_active')->default(true);
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

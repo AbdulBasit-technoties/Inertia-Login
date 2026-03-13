@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\NotificationController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,14 +36,15 @@ Route::middleware(['auth'])->prefix('dashboard')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
     Route::patch('/users/{id}/edit/password', [UserController::class, 'password_update'])->name('users.password');
-    Route::get('/users/?roles={role}', [UserController::class, 'index'])->name('users.roles');
     Route::resource('settings', SettingController::class);
+    Route::post('settings/{setting}/image', [SettingController::class, 'Image'])->name('settings.image');
+    Route::post('settings/{setting}/favicon', [SettingController::class, 'Favicon'])->name('settings.favicon');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile-image', [ProfileController::class, 'ProfileImage'])->name('profileimage');
+    Route::post('/profile/image/{id}', [ProfileController::class, 'image'])->name('user.image');
     Route::post('/notifications/read/{id}', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
-    Route::post('/profile/image/{id}', [ProfileController::class, 'image'])->name('profile.image');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });

@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use App\Http\Requests\StoreSettingRequest;
 use App\Http\Requests\UpdateSettingRequest;
-use App\Models\Country;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class SettingController extends Controller
@@ -64,12 +65,14 @@ class SettingController extends Controller
      */
     public function update(UpdateSettingRequest $request, Setting $setting)
     {
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('settings', 'public');
-            $setting->update(['logo' => $path]);
-        }
+        $data = $request->validated();
+        $setting->update($data);
+        $setting->activities()->create([
+            'uid' => auth()->user()->id,
+            'comment' => 'Setting updated by (' . auth()->user()->name . ')',
+        ]);
 
-        return back()->with(['message' => 'Logo updated successfully!']);
+        return back()->with(['message' => 'Setting updated successfully!']);
     }
 
 
@@ -79,5 +82,54 @@ class SettingController extends Controller
     public function destroy(Setting $setting)
     {
         //
+    }
+    public function Image(Request $request, Setting $setting)
+    {
+        if (!auth()->user()->hasRole('Admin')) {
+            abort(401);
+        }
+        $request->validate([
+            'logo' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('logo')) {
+            $imagePath = $request->file('logo')->store('Crm/logos', 's3');
+            $imageUrl = Storage::disk('s3')->url($imagePath);
+        }
+        $setting->update([
+            'logo' => $imageUrl ?? null,
+        ]);
+        $setting->activities()->create([
+            'uid' => auth()->user()->id,
+            'comment' => 'Setting logo updated by (' . auth()->user()->name . ')',
+        ]);
+        return redirect()->back()->with([
+            'message' => 'Setting logo updated successfully!',
+        ]);
+    }
+
+    public function Favicon(Request $request, Setting $setting)
+    {
+        if (!auth()->user()->hasRole('Admin')) {
+            abort(401);
+        }
+        $request->validate([
+            'favicon' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('favicon')) {
+            $imagePath = $request->file('favicon')->store('Crm/logos', 's3');
+            $faviconUrl = Storage::disk('s3')->url($imagePath);
+        }
+        $setting->update([
+            'favicon' => $faviconUrl ?? null,
+        ]);
+        $setting->activities()->create([
+            'uid' => auth()->user()->id,
+            'comment' => 'Setting favicon updated by (' . auth()->user()->name . ')',
+        ]);
+        return redirect()->back()->with([
+            'message' => 'Setting favicon updated successfully!',
+        ]);
     }
 }

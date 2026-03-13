@@ -4,19 +4,18 @@ import { Head, router } from '@inertiajs/react';
 function View(props) {
     const { role, permissions, permissionsList } = props;
     const groupedPermissions = permissionsList.reduce((acc, permission) => {
-        const [item, action] = permission.split('.'); // Split into item and action
-        if (!acc[item]) acc[item] = []; // Create an array for each item type if it doesn't exist
-        acc[item].push({ action, permission }); // Push the action and full permission into the item array
+        const [item, action] = permission.split('.');
+        if (!acc[item]) acc[item] = [];
+        acc[item].push({ action, permission });
         return acc;
     }, {});
-    // Initialize the state with the current permissions
     const [selectedPermissions, setSelectedPermissions] = useState(permissions);
     const handleCheckboxChange = (permission) => {
         setSelectedPermissions((prev) => {
             if (prev.includes(permission)) {
-                return prev.filter((perm) => perm !== permission); // Uncheck
+                return prev.filter((perm) => perm !== permission);
             } else {
-                return [...prev, permission]; // Check
+                return [...prev, permission];
             }
         });
     };

@@ -17,11 +17,16 @@ const DateRangeFilter = ({
     return (
         <>
             <div className="lg:col-span-3 sm:col-span-6 col-span-12 flex items-center gap-[10px] sm:block">
-                <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary w-[40px] sm:w-auto">
+                <label
+                    htmlFor="from_date"
+                    className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary w-[40px] sm:w-auto"
+                >
                     From
-                </span>
+                </label>
                 <label className="input shadow-none bg-white dark:bg-custdarkbg border-0 h-[46px] !outline-none gap-0 pe-0 w-full">
                     <TextInput
+                        id="from_date"
+                        name="from_date"
                         type="date"
                         className="text-[14px] dark:!bg-custdarkbg w-full"
                         value={fromDate ?? ""}
@@ -30,11 +35,16 @@ const DateRangeFilter = ({
                 </label>
             </div>
             <div className="lg:col-span-3 sm:col-span-6 col-span-12 flex items-center gap-[10px] sm:block">
-                <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary w-[40px] sm:w-auto">
+                <label
+                    htmlFor="to_date"
+                    className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary w-[40px] sm:w-auto"
+                >
                     To
-                </span>
+                </label>
                 <label className="input shadow-none bg-white dark:bg-custdarkbg border-0 h-[46px] !outline-none gap-0 pe-0 w-full">
                     <TextInput
+                        id="to_date"
+                        name="to_date"
                         type="date"
                         className="text-[14px] dark:!bg-custdarkbg w-full"
                         value={toDate ?? ""}
@@ -42,13 +52,20 @@ const DateRangeFilter = ({
                     />
                 </label>
             </div>
-            <div className={`lg:col-span-3 sm:col-span-12 ${dayColumns} col-span-12`}>
+            <div
+                className={`lg:col-span-3 sm:col-span-12 ${dayColumns} col-span-12`}
+            >
                 <div className="grid grid-cols-12 gap-[10px]">
                     <div className="sm:col-span-6 col-span-12">
-                        <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary">
+                        <label
+                            htmlFor="date_range"
+                            className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary"
+                        >
                             Day
-                        </span>
+                        </label>
                         <SelectComponent
+                            id="date_range"
+                            name="date_range"
                             className="block w-full"
                             darkBgClass="dark:!bg-custdarkbg"
                             value={quickRange}
@@ -57,10 +74,15 @@ const DateRangeFilter = ({
                         />
                     </div>
                     <div className="sm:col-span-6 col-span-12">
-                        <span className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary">
+                        <label
+                            htmlFor="pagination"
+                            className="block text-[13px] sm:text-[14px] mb-[5px] font-medium text-custblack dark:text-secondary"
+                        >
                             Pagination
-                        </span>
+                        </label>
                         <SelectComponent
+                            id="pagination"
+                            name="pagination"
                             className="block w-full"
                             darkBgClass="dark:!bg-custdarkbg"
                             value={pagination}

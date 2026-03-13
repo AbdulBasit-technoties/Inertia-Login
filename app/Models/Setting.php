@@ -15,18 +15,33 @@ class Setting extends Model
         'phone_primary',
         'phone_secondary',
         'logo',
+        'favicon',
         'address',
+        'country',
         'state',
         'city',
         'zip_code',
-        'country',
         'facebook',
-        'skype',
-        'linkedin',
         'twitter',
-        'whatsapp',
+        'linkedin',
         'instagram',
-        'active_status',
+        'whatsapp',
+        'youtube',
+        'tiktok',
+        'meta_title',
         'description',
+        'mail_mailer',
+        'mail_host',
+        'mail_port',
+        'mail_username',
+        'mail_password',
+        'mail_encryption',
+        'mail_from_address',
+        'mail_from_name',
+        'is_active',
     ];
+    public function activities()
+    {
+        return $this->morphMany(Activity::class, 'model');
+    }
 }

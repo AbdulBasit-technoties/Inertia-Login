@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use Carbon\Carbon;
@@ -46,12 +47,14 @@ class AdminRoleSeeder extends Seeder
         // Create a new Admin user
         $AdminUser = User::firstOrCreate([
             'email' => 'admin@technoties.com',
+            'phone' => '00000000000',
         ], [
             'name' => 'Admin',
             'password' => Hash::make('Techno@456Ties654!!'),
         ]);
 
         $AdminUser->assignRole($AdminRole);
+        Setting::firstOrCreate();
     }
     /**
      * @param string $roleName

@@ -8,7 +8,7 @@ const SelectComponent = ({
     className,
     isMulti = false,
     placeholder = "Select...",
-    darkBgClass = "dark:!bg-primary",
+    darkBgClass = "dark:!bg-custdarkbg",
 }) => {
 
     const customClassNames = {

@@ -9,7 +9,7 @@ class Activity extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'uid',
+        'user_id',
         'comment',
         'model_type',
         'model_id',
@@ -18,12 +18,8 @@ class Activity extends Model
     {
         return $this->morphTo();
     }
-
-    /**
-     * Profile relation.
-     */
     public function user()
     {
-        return $this->belongsTo(User::class, 'uid');
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

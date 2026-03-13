@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
-use App\Models\Country;
-use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +23,7 @@ class ProfileController extends Controller
         $request->validate([
             'profile_image' => 'required|image|max:2048',
         ]);
-        $profile = auth()->user()->profile ?? null;
+        $profile = auth()->user() ?? null;
         if ($request->hasFile('profile_image')) {
             $profile_imagePath = $request->file('profile_image')->store('Crm/Profile/Image', 's3');
             $profile_imageUrl = Storage::disk('s3')->url($profile_imagePath);
@@ -38,9 +36,11 @@ class ProfileController extends Controller
     }
     public function edit(Request $request): Response
     {
+        $user = User::find($request->user()->id);
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
+            'user' => $user
         ]);
     }
 
@@ -48,29 +48,26 @@ class ProfileController extends Controller
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $profile = auth()->user()->profile ?? null;
+        $user = auth()->user() ?? null;
 
-        if ($profile) {
-            $profile->update([
-                'first_name' => $request->name,
-                'last_name' => $request->last_name,
+        if ($user) {
+            $user->update([
+                'name' => $request->name,
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'country' => $request->country,
                 'city' => $request->city,
                 'state' => $request->state,
                 'zip_code' => $request->zip_code,
-                'account' => $request->account,
-                'nic' => $request->nic,
                 'dob' => $request->dob,
-                'guardian_phone' => $request->guardian_phone,
+                'gender' => $request->gender,
                 'address' => $request->address,
             ]);
         }
-        if ($profile->isDirty('email')) {
-            $profile->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
-        $profile->save();
+        $user->save();
 
         return Redirect::route('dashboard')->with([
             'message' => 'Profile updated successfully!'
@@ -109,7 +106,7 @@ class ProfileController extends Controller
             'nic_b' => 'required|image|max:2048',
         ]);
 
-        $profile = Profile::find($id);
+        $profile = User::find($id);
 
         $validated = [];
         if ($request->hasFile('nic_f')) {

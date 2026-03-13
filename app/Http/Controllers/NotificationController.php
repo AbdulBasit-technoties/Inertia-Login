@@ -87,8 +87,8 @@ class NotificationController extends Controller
     {
         $notification = Notification::where('id', $id)
             ->where(function ($q) {
-                $q->where('uid', auth()->user()->id)
-                    ->orWhere('recipient_id', auth()->user()->id);
+                $q->where('sender_id', auth()->user()->id)
+                    ->orWhere('receiver_id', auth()->user()->id);
             })
             ->firstOrFail();
 
@@ -111,8 +111,8 @@ class NotificationController extends Controller
 
         Notification::whereIn('id', $ids)
             ->where(function ($q) {
-                $q->where('uid', auth()->user()->id)
-                    ->orWhere('recipient_id', auth()->user()->id);
+                $q->where('sender_id', auth()->user()->id)
+                    ->orWhere('receiver_id', auth()->user()->id);
             })
             ->update(['status' => 'read']);
 

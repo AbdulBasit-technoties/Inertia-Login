@@ -13,8 +13,8 @@ class Notification extends Model
     protected $fillable = [
         'model_type',
         'model_id',
-        'uid',
-        'recipient_id',
+        'sender_id',
+        'receiver_id',
         'status',
         'title',
         'message',
@@ -34,14 +34,14 @@ class Notification extends Model
      */
     public function sender(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'uid');
+        return $this->belongsTo(User::class, 'sender_id');
     }
 
     /**
-     * Recipient - User who will receive/read the notification
+     * receiver - User who will receive/read the notification
      */
-    public function recipient(): BelongsTo
+    public function receiver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'recipient_id');
+        return $this->belongsTo(User::class, 'receiver_id');
     }
 }

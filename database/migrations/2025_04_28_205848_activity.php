@@ -13,11 +13,13 @@ return new class extends Migration
     {
         Schema::create('activities', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('uid')->nullable();
+
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->longText('comment')->nullable();
+
             $table->morphs('model');
-            $table->foreign('uid')->references('id')->on('users')->onDelete('set null');
             $table->timestamps();
+            $table->index('created_at');
         });
     }
 

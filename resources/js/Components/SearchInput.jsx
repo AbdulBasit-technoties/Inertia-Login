@@ -11,6 +11,8 @@ const SearchInput = ({
         <div className="relative w-full sm:w-[230px] md:w-auto">
             <div className="cust-search-filter relative flex items-center rounded overflow-hidden">
                 <TextInput
+                    id="search"
+                    name="search"
                     type="text"
                     placeholder={placeholder}
                     value={value ?? ""}

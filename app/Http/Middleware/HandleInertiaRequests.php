@@ -38,7 +38,7 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             $notification = Notification::with('sender')
-                ->where('recipient_id', $user->id)
+                ->where('receiver_id', $user->id)
                 ->where('status', 'unread')
                 ->latest()->get();
         }

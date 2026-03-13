@@ -2,28 +2,25 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
 import usePermissions from "@/Hooks/usePermissions";
 import InputError from "@/Components/InputError";
-import {
-    MdOutlineClose,
-    MdRefresh,
-} from "react-icons/md";
+import { MdOutlineClose } from "react-icons/md";
 import PrimaryButton from "@/Components/PrimaryButton";
-import { Transition } from "@headlessui/react";
-import { useEffect } from "react";
-import {
-    IoEyeOutline,
-    IoFilter,
-    IoPencilOutline,
-} from "react-icons/io5";
+import { IoEyeOutline, IoFilter, IoPencilOutline } from "react-icons/io5";
 import { Table, Thead, Tbody, Tr, Th, Td } from "@/Components/Table";
 import ResetLink from "@/Components/ResetLink";
 import SearchInput from "@/Components/SearchInput";
 import DateRangeFilter from "@/Components/DateRangeFilter";
 import Pagination from "@/Components/Pagination";
 import { Drawer } from "@mui/material";
-export default function Index({ auth, editData, isEditMode, roles, pagination }) {
+export default function Index({
+    auth,
+    editData,
+    isEditMode,
+    roles,
+    pagination,
+}) {
     const { can } = usePermissions();
     const [editClick, setEditClick] = useState(isEditMode);
     const {
@@ -72,7 +69,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                     setEditClick(false);
                     setOpen(false);
                 },
-                onError: () => { },
+                onError: () => {},
             });
         } else {
             post(route("roles.store"), {
@@ -81,7 +78,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                     setSidebarState(false);
                     setOpen(false);
                 },
-                onError: () => { },
+                onError: () => {},
             });
         }
     };
@@ -137,7 +134,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
     return (
         <AuthenticatedLayout auth={auth}>
             <Head title="Roles" />
-            <div >
+            <div>
                 <div className="flex items-center justify-between mb-[20px] flex-wrap sm:flex-nowrap">
                     <h2 className="text-custblack text-[22px] dark:text-secondary capitalize">
                         All Roles
@@ -200,23 +197,17 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                         <Thead>
                             <Th>#</Th>
                             <Th>Name</Th>
-                            <Th>
-                                Actions
-                            </Th>
+                            <Th>Actions</Th>
                         </Thead>
                         <Tbody>
                             {roles.data.map((item, index) => (
-                                <Tr
-                                    key={item.id}
-                                >
+                                <Tr key={item.id}>
                                     <Td>
                                         {(roles.current_page - 1) *
                                             roles.per_page +
                                             (index + 1)}
                                     </Td>
-                                    <Td>
-                                        {item.name}
-                                    </Td>
+                                    <Td>{item.name}</Td>
                                     <Td>
                                         <div className="flex gap-[10px] items-center">
                                             {can("roles.edit") && (
@@ -227,10 +218,10 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                                                     <label
                                                         onClick={(e) => {
                                                             handleEditClick(
-                                                                item
+                                                                item,
                                                             );
                                                             setSidebarState(
-                                                                true
+                                                                true,
                                                             );
                                                         }}
                                                         className="text-primary dark:hover:text-white hover:bg-custgreen transition-all dark:bg-transparent dark:text-secondary dark:border border-gray-400 duration-500 hover:text-white dark:text-custgreen text-[18px] w-[30px] h-[30px] bg-[#f8f8fb] flex items-center justify-center rounded cursor-pointer dark:hover:bg-custgreen dark:hover:border-custgreen"
@@ -247,7 +238,7 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                                                     <Link
                                                         href={route(
                                                             "roles.show",
-                                                            item.id
+                                                            item.id,
                                                         )}
                                                         className="text-primary dark:hover:text-white hover:bg-custgreen transition-all dark:bg-transparent dark:text-secondary dark:border border-gray-400 duration-500 hover:text-white dark:text-custgreen text-[18px] w-[30px] h-[30px] bg-[#f8f8fb] flex items-center justify-center rounded cursor-pointer dark:hover:bg-custgreen dark:hover:border-custgreen"
                                                     >
@@ -293,8 +284,6 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                                 onClick={() => {
                                     setOpen(false);
                                     reset();
-                                    hasSetEditData.current = false;
-                                    setValidationErrors({});
                                 }}
                                 className=" text-secondary transition-all duration-500 cursor-pointer"
                             >
@@ -308,16 +297,23 @@ export default function Index({ auth, editData, isEditMode, roles, pagination })
                             <div className="grid grid-cols-12 gap-5 items-center dark:bg-custdarkbg bg-custbg py-[30px] px-[20px]">
                                 <div className="col-span-12">
                                     <InputLabel htmlFor="name" value="Name" />
+
                                     <TextInput
                                         id="name"
+                                        name="name"
                                         type="text"
-                                        value={data.name}
+                                        value={data.name || ""}
+                                        className="mt-1 block w-full"
+                                        autoComplete="name"
                                         onChange={(e) =>
                                             setData("name", e.target.value)
                                         }
-                                        className="mt-1 block w-full"
                                     />
-                                    <InputError message={errors.name} />
+
+                                    <InputError
+                                        message={errors.name}
+                                        className="mt-2"
+                                    />
                                 </div>
                             </div>
                             {!editClick === true && (

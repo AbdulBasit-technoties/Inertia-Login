@@ -16,14 +16,14 @@ return new class extends Migration
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
             $table->morphs("model");
-            $table->unsignedBigInteger('uid');
-            $table->unsignedBigInteger('recipient_id');
+            $table->unsignedBigInteger('sender_id');
+            $table->unsignedBigInteger('receiver_id');
             $table->enum('status', ['unread', 'read'])->default('unread');
             $table->string('title')->nullable();
             $table->text('message')->nullable();
             $table->string('route')->nullable();
-            $table->foreign('uid')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('recipient_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
