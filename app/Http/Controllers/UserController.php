@@ -84,7 +84,7 @@ class UserController extends Controller
         if (!auth()->user()->can('users.show')) {
             abort(401);
         }
-        $user = User::select('id', 'name', 'email')->find($id);
+        $user = User::select('id', 'name', 'email')->RoleFilter()->find($id);
         if (!$user) {
             abort(401);
         }
