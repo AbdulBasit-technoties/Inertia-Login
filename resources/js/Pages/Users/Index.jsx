@@ -12,13 +12,31 @@ import { Table, Thead, Tbody, Tr, Th, Td } from "@/Components/Table";
 import MultiSelectComponent from "@/Components/MultiSelectComponent";
 import Pagination from "@/Components/Pagination";
 import usePermissions from "@/Hooks/usePermissions";
-import { Accordion, AccordionDetails, AccordionSummary, Drawer, Typography } from "@mui/material";
+import {
+    Accordion,
+    AccordionDetails,
+    AccordionSummary,
+    Drawer,
+    Typography,
+} from "@mui/material";
 import SearchInput from "@/Components/SearchInput";
 import ResetLink from "@/Components/ResetLink";
 import DateRangeFilter from "@/Components/DateRangeFilter";
 import { HiChevronDoubleDown } from "react-icons/hi";
 import SelectComponent from "@/Components/SelectComponent";
-export default function Index({ auth, UserData, editData, isEditMode, roles, pagination }) {
+import { FaRegEye, FaRegEyeSlash } from "react-icons/fa6";
+export default function Index({
+    auth,
+    UserData,
+    editData,
+    isEditMode,
+    roles,
+    pagination,
+    from,
+    to,
+    range,
+    search,
+}) {
     const handleDelete = (id) => {
         const swalInstance = Swal.fire({
             title: "Are you sure?",
@@ -37,7 +55,7 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                         Swal.fire(
                             "Deleted!",
                             "Your order has been deleted.",
-                            "success"
+                            "success",
                         );
                     },
                     onError: () => {
@@ -45,34 +63,26 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                         Swal.fire(
                             "Error!",
                             "There was an issue deleting your role.",
-                            "error"
+                            "error",
                         );
                     },
                 });
             }
         });
     };
+    const [open, setOpen] = useState(false);
     const [editClick, setEditClick] = useState(isEditMode);
     const [passwordErrors, setPasswordErrors] = useState({
         confirm_password: null,
     });
-    const {
-        data,
-        setData,
-        post,
-        patch,
-        progress,
-        processing,
-        errors,
-        reset,
-    } = useForm({
-        id: "",
-        name: "",
-        email: "",
-        password: "",
-        password_confirmation: "",
-        role: ""
-    });
+    const { data, setData, post, patch, progress, processing, errors, reset } =
+        useForm({
+            name: "",
+            email: "",
+            password: "",
+            password_confirmation: "",
+            role: "",
+        });
     const handleEditClick = (item) => {
         setOpen(!open);
         setEditClick(true);
@@ -84,14 +94,13 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
 
     const hasSetEditData = useRef(false);
 
-    // Update form data when editData changes
     useEffect(() => {
         if (editData && editClick && !hasSetEditData.current) {
             setData({
                 id: editData?.id || "",
                 name: editData?.name || "",
                 email: editData?.email || "",
-                role: editData?.roles?.map((person) => person.name) || []
+                role: editData?.roles?.map((person) => person.name) || [],
             });
             hasSetEditData.current = true;
         } else {
@@ -115,58 +124,88 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
             password_confirmation: data.password_confirmation,
             onSuccess: () => {
                 reset();
-                setSidebarState(false);
                 setOpen(false);
             },
-            onError: () => { },
+            onError: () => {},
         });
     };
-    // Submit handler
-    const submit = (e) => {
+    const [validationErrors, setValidationErrors] = useState(errors || {});
+    const Datasubmit = (e) => {
         e.preventDefault();
-        editData
+        editData && editClick
             ? patch(route("users.update", editData?.id), {
-                onSuccess: () => {
-                    reset();
-                    setSidebarState(false);
-                    setOpen(false);
-                },
-            })
+                  onSuccess: () => {
+                      reset();
+                      setOpen(false);
+                      hasSetEditData.current = true;
+                      setEditClick(false);
+                      setValidationErrors({});
+                  },
+                  onError: (errors) => {
+                      setValidationErrors(errors);
+                  },
+              })
             : post(route("users.store"), {
-                onSuccess: () => {
-                    reset();
-                    setSidebarState(false);
-                    setOpen(false);
-                },
-            });
+                  onSuccess: () => {
+                      reset();
+                      setOpen(false);
+                      setValidationErrors({});
+                  },
+                  onError: (errors) => {
+                      setValidationErrors(errors);
+                  },
+              });
     };
     const { can } = usePermissions();
-    const [sidebarState, setSidebarState] = useState(false);
-
     const [expanded, setExpanded] = useState("panel1");
     const handleChange = (panel) => (event, isExpanded) => {
         setExpanded(isExpanded ? panel : false);
     };
-    const [open, setOpen] = useState(false);
 
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(search);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.visit(route("users.index", { search: searchQuery }));
+        router.visit(
+            route(
+                "users.index",
+                {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    quick_range: quickRange,
+                    pagination: pagination,
+                    search: searchQuery,
+                },
+                {
+                    preserveState: true,
+                    replace: true,
+                    only: ["search", "UserData"],
+                },
+            ),
+        );
     };
 
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
-    const [quickRange, setQuickRange] = useState("");
+    const [fromDate, setFromDate] = useState(from);
+    const [toDate, setToDate] = useState(to);
+    const [quickRange, setQuickRange] = useState(range);
+    const isFirstRender = useRef(true);
+
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         if (fromDate && toDate) {
             router.visit(route("users.index"), {
                 data: {
                     from_date: fromDate,
                     to_date: toDate,
+                    pagination: pagination,
+                    search: searchQuery,
                 },
                 preserveState: true,
+                replace: true,
+                only: ["from", "to", "UserData"],
             });
         }
     }, [fromDate, toDate]);
@@ -178,25 +217,33 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
         router.visit(route("users.index"), {
             data: {
                 quick_range: value,
+                pagination: pagination,
+                search: searchQuery,
             },
             preserveState: true,
+            replace: true,
+            only: ["range", "UserData"],
         });
     };
 
     const handlePagination = (value) => {
         router.visit(route("users.index"), {
             data: {
-                pagination: value,
                 from_date: fromDate,
                 to_date: toDate,
                 quick_range: quickRange,
+                pagination: value,
                 search: searchQuery,
             },
-            preserveState: true,
             preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            only: ["pagination", "UserData"],
         });
     };
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
 
     return (
@@ -287,17 +334,20 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                 {
                                                     preserveState: true,
                                                     replace: true,
-                                                    only: [
-                                                        "status",
-                                                        "users",
-                                                    ],
+                                                    only: ["status", "users"],
                                                 },
                                             );
                                         }}
                                         placeholder="Status"
                                         options={[
-                                            { value: "active", label: "Active" },
-                                            { value: "inactive", label: "Inactive" },
+                                            {
+                                                value: "active",
+                                                label: "Active",
+                                            },
+                                            {
+                                                value: "inactive",
+                                                label: "Inactive",
+                                            },
                                         ]}
                                         className="block w-full"
                                         darkBgClass="dark:!bg-custdarkbg"
@@ -352,10 +402,9 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                         <div className="flex gap-[10px] items-center">
                                             {can("users.edit") && (
                                                 <label
-                                                    onClick={(e) => {
-                                                        handleEditClick(item);
-                                                        setSidebarState(true);
-                                                    }}
+                                                    onClick={(e) =>
+                                                        handleEditClick(item)
+                                                    }
                                                     className="text-primary dark:hover:text-white hover:bg-custgreen transition-all dark:bg-transparent dark:text-secondary dark:border border-gray-400 duration-500 hover:text-white dark:text-custgreen text-[18px] w-[30px] h-[30px] bg-[#f8f8fb] flex items-center justify-center rounded cursor-pointer dark:hover:bg-custgreen dark:hover:border-custgreen"
                                                 >
                                                     <IoPencilOutline />
@@ -365,7 +414,7 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                 <Link
                                                     href={route(
                                                         "users.show",
-                                                        item.id
+                                                        item.id,
                                                     )}
                                                     className="text-primary dark:hover:text-white hover:bg-custgreen transition-all dark:bg-transparent dark:text-secondary dark:border border-gray-400 duration-500 hover:text-white dark:text-custgreen text-[18px] w-[30px] h-[30px] bg-[#f8f8fb] flex items-center justify-center rounded cursor-pointer dark:hover:bg-custgreen dark:hover:border-custgreen"
                                                 >
@@ -421,6 +470,7 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                     setOpen(false);
                                     reset();
                                     hasSetEditData.current = false;
+                                    setValidationErrors({});
                                 }}
                                 className=" text-secondary transition-all duration-500 cursor-pointer"
                             >
@@ -428,7 +478,7 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                             </label>
                         </div>
                         <form
-                            onSubmit={submit}
+                            onSubmit={Datasubmit}
                             className="grid grid-cols-1 items-center justify-center px-[15px] sm:px-[25px] py-[25px]"
                         >
                             <div className="col-span-12">
@@ -453,13 +503,13 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                 `}
                                             sx={{
                                                 "& .MuiAccordionSummary-content":
-                                                {
-                                                    margin: 0,
-                                                },
+                                                    {
+                                                        margin: 0,
+                                                    },
                                                 "& .MuiAccordionSummary-content.Mui-expanded":
-                                                {
-                                                    margin: 0,
-                                                },
+                                                    {
+                                                        margin: 0,
+                                                    },
                                                 "& .MuiCollapse-root": {
                                                     backgroundColor:
                                                         "#000 !important",
@@ -511,11 +561,14 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                             id="name"
                                                             name="name"
                                                             className="mt-1 block w-full"
-                                                            value={data.name || ""}
+                                                            value={
+                                                                data.name || ""
+                                                            }
                                                             onChange={(e) =>
                                                                 setData(
                                                                     "name",
-                                                                    e.target.value
+                                                                    e.target
+                                                                        .value,
                                                                 )
                                                             }
                                                             isFocused
@@ -524,7 +577,9 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <InputError
                                                             className="mt-2"
-                                                            message={errors.name}
+                                                            message={
+                                                                validationErrors.name
+                                                            }
                                                         />
                                                     </div>
                                                     <div className="col-span-12">
@@ -537,11 +592,14 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                             name="email"
                                                             type="email"
                                                             className="mt-1 block w-full"
-                                                            value={data.email || ""}
+                                                            value={
+                                                                data.email || ""
+                                                            }
                                                             onChange={(e) =>
                                                                 setData(
                                                                     "email",
-                                                                    e.target.value
+                                                                    e.target
+                                                                        .value,
                                                                 )
                                                             }
                                                             required
@@ -549,7 +607,9 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <InputError
                                                             className="mt-2"
-                                                            message={errors.email}
+                                                            message={
+                                                                validationErrors.email
+                                                            }
                                                         />
                                                     </div>
                                                     {!editClick === true && (
@@ -558,23 +618,61 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                                 htmlFor="password"
                                                                 value="Password"
                                                             />
-                                                            <TextInput
-                                                                id="password"
-                                                                name="password"
-                                                                type="password"
-                                                                className="mt-1 block w-full"
-                                                                value={data.password || ""}
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "password",
-                                                                        e.target.value
-                                                                    )
-                                                                }
-                                                                autoComplete="username"
-                                                            />
+                                                            <div className="relative">
+                                                                <TextInput
+                                                                    id="password"
+                                                                    name="password"
+                                                                    type={
+                                                                        showPassword
+                                                                            ? "text"
+                                                                            : "password"
+                                                                    }
+                                                                    className="mt-1 block w-full"
+                                                                    value={
+                                                                        data.password ||
+                                                                        ""
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setData(
+                                                                            "password",
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                    autoComplete="username"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        setShowPassword(
+                                                                            !showPassword,
+                                                                        )
+                                                                    }
+                                                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary dark:text-secondary"
+                                                                >
+                                                                    {showPassword ? (
+                                                                        <FaRegEye
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <FaRegEyeSlash
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                             <InputError
                                                                 className="mt-2"
-                                                                message={errors.password}
+                                                                message={
+                                                                    validationErrors.password
+                                                                }
                                                             />
                                                         </div>
                                                     )}
@@ -586,9 +684,14 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         <MultiSelectComponent
                                                             id="role"
                                                             name="role"
-                                                            value={data.role || ""}
+                                                            value={
+                                                                data.role || ""
+                                                            }
                                                             onChange={(e) =>
-                                                                setData("role", e)
+                                                                setData(
+                                                                    "role",
+                                                                    e,
+                                                                )
                                                             }
                                                             options={roles}
                                                             className="mt-1 block w-full text-gray-800"
@@ -596,7 +699,9 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         />
                                                         <InputError
                                                             className="mt-2"
-                                                            message={errors.role}
+                                                            message={
+                                                                validationErrors.role
+                                                            }
                                                         />
                                                     </div>
                                                 </div>
@@ -652,13 +757,13 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                     `}
                                                 sx={{
                                                     "& .MuiAccordionSummary-content":
-                                                    {
-                                                        margin: 0,
-                                                    },
+                                                        {
+                                                            margin: 0,
+                                                        },
                                                     "& .MuiAccordionSummary-content.Mui-expanded":
-                                                    {
-                                                        margin: 0,
-                                                    },
+                                                        {
+                                                            margin: 0,
+                                                        },
                                                     "& .MuiCollapse-root": {
                                                         backgroundColor:
                                                             "#000 !important",
@@ -688,7 +793,7 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                         `}
                                                     >
                                                         {expanded ===
-                                                            "panel2" ? (
+                                                        "panel2" ? (
                                                             <MdRemove
                                                                 size={20}
                                                             />
@@ -709,24 +814,60 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                                 htmlFor="password"
                                                                 value="Password"
                                                             />
-                                                            <TextInput
-                                                                id="password"
-                                                                name="password"
-                                                                className="mt-1 block w-full"
-                                                                value={data.password || ""}
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "password",
-                                                                        e.target.value
-                                                                    )
-                                                                }
-                                                                required
-                                                                autoComplete="new-password"
-                                                                type="password"
-                                                            />
+                                                            <div className="relative">
+                                                                <TextInput
+                                                                    id="password"
+                                                                    className="mt-1 block w-full"
+                                                                    value={
+                                                                        data.password
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setData(
+                                                                            "password",
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                    required
+                                                                    autoComplete="new-password"
+                                                                    type={
+                                                                        showPassword
+                                                                            ? "text"
+                                                                            : "password"
+                                                                    }
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        setShowPassword(
+                                                                            !showPassword,
+                                                                        )
+                                                                    }
+                                                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary dark:text-secondary"
+                                                                >
+                                                                    {showPassword ? (
+                                                                        <FaRegEye
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <FaRegEyeSlash
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                             <InputError
                                                                 className="mt-2"
-                                                                message={errors.password}
+                                                                message={
+                                                                    errors.password
+                                                                }
                                                             />
                                                         </div>
                                                         <div className="col-span-12">
@@ -734,23 +875,55 @@ export default function Index({ auth, UserData, editData, isEditMode, roles, pag
                                                                 htmlFor="password_confirmation"
                                                                 value="Confirm Password"
                                                             />
-                                                            <TextInput
-                                                                id="password_confirmation"
-                                                                name="password_confirmation"
-                                                                className="mt-1 block w-full"
-                                                                value={
-                                                                    data.password_confirmation || ""
-                                                                }
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "password_confirmation",
-                                                                        e.target.value
-                                                                    )
-                                                                }
-                                                                required
-                                                                autoComplete="new-password"
-                                                                type="password"
-                                                            />
+                                                            <div className="relative">
+                                                                <TextInput
+                                                                    id="password_confirmation"
+                                                                    className="mt-1 block w-full"
+                                                                    value={
+                                                                        data.password_confirmation
+                                                                    }
+                                                                    onChange={(
+                                                                        e,
+                                                                    ) =>
+                                                                        setData(
+                                                                            "password_confirmation",
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        )
+                                                                    }
+                                                                    required
+                                                                    autoComplete="new-password"
+                                                                    type={
+                                                                        showConfirmPassword
+                                                                            ? "text"
+                                                                            : "password"
+                                                                    }
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        setShowConfirmPassword(
+                                                                            !showConfirmPassword,
+                                                                        )
+                                                                    }
+                                                                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-primary dark:text-secondary"
+                                                                >
+                                                                    {showConfirmPassword ? (
+                                                                        <FaRegEye
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    ) : (
+                                                                        <FaRegEyeSlash
+                                                                            size={
+                                                                                18
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                             <InputError
                                                                 className="mt-2"
                                                                 message={

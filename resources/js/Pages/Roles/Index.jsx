@@ -2,7 +2,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 import InputLabel from "@/Components/InputLabel";
 import TextInput from "@/Components/TextInput";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import usePermissions from "@/Hooks/usePermissions";
 import InputError from "@/Components/InputError";
 import { MdOutlineClose } from "react-icons/md";
@@ -20,23 +20,18 @@ export default function Index({
     isEditMode,
     roles,
     pagination,
+    search,
+    from,
+    to,
+    range,
 }) {
     const { can } = usePermissions();
     const [editClick, setEditClick] = useState(isEditMode);
-    const {
-        data,
-        setData,
-        post,
-        patch,
-        progress,
-        recentlySuccessful,
-        processing,
-        errors,
-        reset,
-    } = useForm({
-        id: editData?.id || "",
-        name: editData?.name || "",
-    });
+    const { data, setData, post, patch, progress, processing, errors, reset } =
+        useForm({
+            id: editData?.id || "",
+            name: editData?.name || "",
+        });
     const [open, setOpen] = useState(false);
     const handleEditClick = (item) => {
         setOpen(!open);
@@ -47,61 +42,93 @@ export default function Index({
         });
     };
 
+    const hasSetEditData = useRef(false);
+
     useEffect(() => {
-        if (editData && editClick) {
+        if (editData && editClick && !hasSetEditData.current) {
             setData({
                 id: editData?.id || "",
                 name: editData?.name || "",
             });
+            hasSetEditData.current = true;
         } else {
-            reset();
+            hasSetEditData.current = false;
         }
     }, [editData, editClick]);
+    const [validationErrors, setValidationErrors] = useState(errors || {});
 
-    // Submit handler
     const Datasubmit = (e) => {
         e.preventDefault();
-        if (editData) {
+        if (editData && editClick) {
             patch(route("roles.update", editData?.id), {
                 onSuccess: () => {
                     reset();
-                    setSidebarState(false);
                     setEditClick(false);
                     setOpen(false);
+                    hasSetEditData.current = true;
+                    setValidationErrors({});
                 },
-                onError: () => {},
+                onError: (errors) => {
+                    setValidationErrors(errors);
+                },
             });
         } else {
             post(route("roles.store"), {
                 onSuccess: () => {
                     reset();
-                    setSidebarState(false);
                     setOpen(false);
+                    setValidationErrors({});
                 },
-                onError: () => {},
+                onError: (errors) => {
+                    setValidationErrors(errors);
+                },
             });
         }
     };
-    const [sidebarState, setSidebarState] = useState(false);
-
-    const [searchQuery, setSearchQuery] = useState("");
+    const [searchQuery, setSearchQuery] = useState(search);
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.visit(route("roles.index", { search: searchQuery }));
+        router.visit(
+            route(
+                "roles.index",
+                {
+                    from_date: fromDate,
+                    to_date: toDate,
+                    quick_range: quickRange,
+                    pagination: pagination,
+                    search: searchQuery,
+                },
+                {
+                    preserveState: true,
+                    replace: true,
+                    only: ["search", "roles"],
+                },
+            ),
+        );
     };
 
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
-    const [quickRange, setQuickRange] = useState("");
+    const [fromDate, setFromDate] = useState(from);
+    const [toDate, setToDate] = useState(to);
+    const [quickRange, setQuickRange] = useState(range);
+    const isFirstRender = useRef(true);
+
     useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         if (fromDate && toDate) {
             router.visit(route("roles.index"), {
                 data: {
                     from_date: fromDate,
                     to_date: toDate,
+                    pagination: pagination,
+                    search: searchQuery,
                 },
                 preserveState: true,
+                replace: true,
+                only: ["from", "to", "roles"],
             });
         }
     }, [fromDate, toDate]);
@@ -113,22 +140,28 @@ export default function Index({
         router.visit(route("roles.index"), {
             data: {
                 quick_range: value,
+                pagination: pagination,
+                search: searchQuery,
             },
             preserveState: true,
+            replace: true,
+            only: ["range", "roles"],
         });
     };
 
     const handlePagination = (value) => {
         router.visit(route("roles.index"), {
             data: {
-                pagination: value,
                 from_date: fromDate,
                 to_date: toDate,
                 quick_range: quickRange,
+                pagination: value,
                 search: searchQuery,
             },
-            preserveState: true,
             preserveScroll: true,
+            preserveState: true,
+            replace: true,
+            only: ["pagination", "roles"],
         });
     };
     return (
@@ -216,14 +249,11 @@ export default function Index({
                                                     data-tip="Edit"
                                                 >
                                                     <label
-                                                        onClick={(e) => {
+                                                        onClick={(e) =>
                                                             handleEditClick(
                                                                 item,
-                                                            );
-                                                            setSidebarState(
-                                                                true,
-                                                            );
-                                                        }}
+                                                            )
+                                                        }
                                                         className="text-primary dark:hover:text-white hover:bg-custgreen transition-all dark:bg-transparent dark:text-secondary dark:border border-gray-400 duration-500 hover:text-white dark:text-custgreen text-[18px] w-[30px] h-[30px] bg-[#f8f8fb] flex items-center justify-center rounded cursor-pointer dark:hover:bg-custgreen dark:hover:border-custgreen"
                                                     >
                                                         <IoPencilOutline />
@@ -284,6 +314,8 @@ export default function Index({
                                 onClick={() => {
                                     setOpen(false);
                                     reset();
+                                    hasSetEditData.current = false;
+                                    setValidationErrors({});
                                 }}
                                 className=" text-secondary transition-all duration-500 cursor-pointer"
                             >
@@ -311,7 +343,7 @@ export default function Index({
                                     />
 
                                     <InputError
-                                        message={errors.name}
+                                        message={validationErrors.name}
                                         className="mt-2"
                                     />
                                 </div>

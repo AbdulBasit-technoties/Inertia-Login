@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Services\DropdownService;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -21,30 +22,21 @@ class UserController extends Controller
         if (!auth()->user()->can('users.index')) {
             abort(401);
         }
-        $user = Auth::user();
-        $query = User::with('roles');
-        if ($user->hasRole('Admin')) {
-            if ($request->has('roles')) {
-                $roles = $request->input('roles');
-                $query->role($roles);
-            }
-        } else {
-            $query->where('id', $user->id);
-        }
-        $users = $query->orderBy('id', 'desc')->paginate(30)->withQueryString();
-        $roles = Role::get()->map(function ($role) {
-            return [
-                'label' => $role->name,
-                'value' => $role->name,
-            ];
-        })->toArray();
-        $editData = $request->id ? User::with('roles')->find($request->id) : null;
+        $paginate = (int) ($request->pagination ?? 30);
+        $editData = $request->id ? User::select('id', 'name', 'email')->RoleFilter()->with('roles:name')->find($request->id) : null;
         $isEditMode = (bool)$request->id;
+        $users = User::select('id', 'name', 'email')->with('roles:name')->DataFilter($request)->RoleFilter()->orderBy('id', 'desc')->paginate($paginate)->withQueryString();
+        $roles  = DropdownService::roles();
         return Inertia::render('Users/Index', [
             'UserData' => $users,
             'editData' => $editData,
             'isEditMode' => $isEditMode,
             'roles' => $roles,
+            'from' => $request->from_date,
+            'to' => $request->to_date,
+            'range' => $request->quick_range,
+            'search' => $request->search,
+            'pagination' => $paginate,
         ]);
     }
 

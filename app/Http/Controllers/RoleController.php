@@ -59,17 +59,22 @@ class RoleController extends Controller
                 ->whereYear('created_at', now()->year);
         }
 
-        $perPage = $request->get('pagination', 10);
+        $paginate = (int) ($request->pagination ?? 30);
 
-        $roles = $query->orderBy('id', 'desc')->paginate($perPage)->withQueryString();
+        $roles = $query->orderBy('id', 'desc')->paginate($paginate)->withQueryString();
 
         $editData = $request->id ? Role::find($request->id) : null;
         $isEditMode = (bool)$request->id;
-        return Inertia::render('Roles/Index', compact(
-            'roles',
-            'editData',
-            'isEditMode'
-        ) + ['pagination' => $perPage]);
+        return Inertia::render('Roles/Index', [
+            'roles' => $roles,
+            'editData' => $editData,
+            'isEditMode' => $isEditMode,
+            'pagination' => $paginate,
+            'from' => $from,
+            'to' => $to,
+            'range' => $range,
+            'search' => $search,
+        ]);
     }
 
     public function create(Request $request)
